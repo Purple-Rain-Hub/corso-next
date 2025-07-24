@@ -180,6 +180,80 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sezione Servizi di Prenotazione */}
+      <section className="bg-blue-50 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-extrabold text-gray-900">
+              Servizi per i tuoi Amici
+            </h3>
+            <p className="mt-4 text-lg text-gray-600">
+              Prenota facilmente i nostri servizi professionali
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <div className="text-center">
+                <div className="text-5xl mb-4">🐕</div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                  Prenota un Servizio
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  Toelettatura, visite veterinarie, addestramento e molto altro. 
+                  Aggiungi i servizi al carrello e prenota quando vuoi.
+                </p>
+                <Link
+                  href="/prenotazioni"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-block"
+                >
+                  Prenota Ora
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <div className="text-center">
+                <div className="text-5xl mb-4">📋</div>
+                <h4 className="text-xl font-semibold text-gray-900 mb-4">
+                  Gestisci Prenotazioni
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  Visualizza tutte le prenotazioni, controlla gli stati e 
+                  monitora l'andamento dei servizi prenotati.
+                </p>
+                <Link
+                  href="/prenotazioni/gestione"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-block"
+                >
+                  Vedi Prenotazioni
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Statistiche servizi */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center bg-white rounded-lg p-4 shadow-sm">
+              <div className="text-2xl font-bold text-blue-600">6</div>
+              <div className="text-sm text-gray-600">Servizi Disponibili</div>
+            </div>
+            <div className="text-center bg-white rounded-lg p-4 shadow-sm">
+              <div className="text-2xl font-bold text-green-600">✂️</div>
+              <div className="text-sm text-gray-600">Toelettatura</div>
+            </div>
+            <div className="text-center bg-white rounded-lg p-4 shadow-sm">
+              <div className="text-2xl font-bold text-purple-600">🏥</div>
+              <div className="text-sm text-gray-600">Cure Veterinarie</div>
+            </div>
+            <div className="text-center bg-white rounded-lg p-4 shadow-sm">
+              <div className="text-2xl font-bold text-orange-600">🎓</div>
+              <div className="text-sm text-gray-600">Addestramento</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Sezione Benefici */}
       <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

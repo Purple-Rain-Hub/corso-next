@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Modello per i servizi prenotabili (ad esempio servizi del pet shop)
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  duration    Int      // durata in minuti
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relazione con le prenotazioni
+  bookings    Booking[]
+  
+  // Relazione con gli elementi del carrello
+  cartItems   CartItem[]
+}
+
+// Modello per le prenotazioni
+model Booking {
+  id          Int      @id @default(autoincrement())
+  customerName String
+  customerEmail String
+  petName     String
+  petType     String   // cane, gatto, ecc.
+  serviceId   Int
+  bookingDate DateTime
+  bookingTime String   // orario della prenotazione (formato: "HH:MM")
+  status      String   @default("pending") // pending, confirmed, completed, cancelled
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relazione con il servizio
+  service     Service  @relation(fields: [serviceId], references: [id])
+  
+  @@map("bookings")
+}
+
+// Modello per gli elementi del carrello
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  sessionId  String   // per identificare il carrello dell'utente
+  serviceId  Int
+  petName    String
+  petType    String
+  bookingDate DateTime
+  bookingTime String
+  customerName String?
+  customerEmail String?
+  createdAt  DateTime @default(now())
+  
+  // Relazione con il servizio
+  service    Service  @relation(fields: [serviceId], references: [id])
+  
+  @@map("cart_items")
+}
