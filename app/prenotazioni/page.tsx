@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useCart } from '@/lib/context/CartContext'
 
 // Tipi TypeScript
@@ -183,6 +183,11 @@ export default function PrenotazioniPage() {
     return new Date(date).toLocaleDateString('it-IT')
   }
 
+  const numero_servizi_premium = useMemo(() => {
+    return services.filter((service) => service.price > 20).length
+  }, [services])
+//  const numero_servizi_premium = services.filter((service) => service.price > 20).length
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
@@ -239,7 +244,7 @@ export default function PrenotazioniPage() {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-3 mb-8">
               <Icons.Sparkles />
-              <h2 className="text-2xl font-bold text-gray-900">Servizi Disponibili</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Servizi Disponibili ({numero_servizi_premium})</h2>
             </div>
             
             {services.length === 0 ? (
