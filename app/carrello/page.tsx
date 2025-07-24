@@ -1,10 +1,39 @@
 'use client'
 
 import { useCart } from '@/lib/context/CartContext'
+import { useAuth } from '@/lib/auth/context'
 import Link from 'next/link'
+import { useState } from 'react'
 
 export default function CarrelloPage() {
-  const { cartItems, loading, removeFromCart, getTotalPrice } = useCart()
+  const { cartItems, loading, removeFromCart, getTotalPrice, checkout, isAuthenticated } = useCart()
+  const { user } = useAuth()
+  const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false)
+
+  // 🔒 Gestione checkout sicuro
+  const handleCheckout = async () => {
+    if (!isAuthenticated) {
+      alert('Devi essere autenticato per effettuare il checkout.')
+      return
+    }
+
+    setIsCheckingOut(true)
+    try {
+      const result = await checkout({
+        name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Cliente',
+        email: user?.email || ''
+      })
+      
+      setCheckoutSuccess(true)
+      alert(`Checkout completato! ${result?.message || 'Prenotazioni create con successo.'}`)
+    } catch (error) {
+      console.error('Errore nel checkout:', error)
+      alert('Errore durante il checkout. Riprova.')
+    } finally {
+      setIsCheckingOut(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -79,11 +108,44 @@ export default function CarrelloPage() {
                 <span>Totale:</span>
                 <span className="text-blue-600">€{getTotalPrice().toFixed(2)}</span>
               </div>
-              <div className="mt-6">
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
-                  Procedi al Checkout
-                </button>
-              </div>
+              
+              {/* 🔒 Controllo autenticazione per checkout */}
+              {!isAuthenticated ? (
+                <div className="mt-6 space-y-3">
+                  <p className="text-sm text-gray-600 text-center">
+                    Devi essere autenticato per completare l'acquisto
+                  </p>
+                  <div className="flex space-x-3">
+                    <Link
+                      href="/auth/login"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors text-center"
+                    >
+                      Accedi
+                    </Link>
+                    <Link
+                      href="/auth/signup"
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-medium transition-colors text-center"
+                    >
+                      Registrati
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6">
+                  <button 
+                    onClick={handleCheckout}
+                    disabled={isCheckingOut || checkoutSuccess}
+                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-medium transition-colors"
+                  >
+                    {isCheckingOut ? 'Elaborazione...' : checkoutSuccess ? 'Completato!' : 'Procedi al Checkout'}
+                  </button>
+                  {checkoutSuccess && (
+                    <p className="mt-2 text-sm text-green-600 text-center">
+                      Checkout completato con successo! Le tue prenotazioni sono state create.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

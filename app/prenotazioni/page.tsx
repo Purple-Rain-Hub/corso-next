@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useCart } from '@/lib/context/CartContext'
+import { useAuth } from '@/lib/auth/context'
 
 // Tipi TypeScript
 interface Service {
@@ -68,7 +69,8 @@ export default function PrenotazioniPage() {
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [showCart, setShowCart] = useState(false)
 
-  const { cartItems, addToCart, removeFromCart, getTotalPrice, getItemCount, checkout } = useCart()
+  const { cartItems, addToCart, removeFromCart, getTotalPrice, getItemCount, checkout, isAuthenticated } = useCart()
+  const { user } = useAuth()
 
   // Form data
   const [formData, setFormData] = useState({
@@ -108,6 +110,12 @@ export default function PrenotazioniPage() {
     e.preventDefault()
     
     if (!selectedService) return
+
+    // 🔒 Controllo autenticazione con messaggio più chiaro
+    if (!isAuthenticated) {
+      alert('Devi essere autenticato per aggiungere servizi al carrello. Effettua l\'accesso per continuare.')
+      return
+    }
 
     try {
       await addToCart({

@@ -1,8 +1,10 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useAuth } from '@/lib/auth/context'
+import { useRouter } from 'next/navigation'
 
-// Tipi TypeScript
+// Tipi TypeScript aggiornati
 interface Service {
   id: number
   name: string
@@ -13,7 +15,7 @@ interface Service {
 
 interface CartItem {
   id: number
-  sessionId: string
+  userId: string // ✅ Aggiornato da sessionId a userId
   serviceId: number
   petName: string
   petType: string
@@ -27,8 +29,8 @@ interface CartItem {
 interface CartContextType {
   cartItems: CartItem[]
   loading: boolean
-  sessionId: string
-  addToCart: (item: Omit<CartItem, 'id' | 'sessionId' | 'service'>) => Promise<void>
+  isAuthenticated: boolean // ✅ Nuovo: stato autenticazione
+  addToCart: (item: Omit<CartItem, 'id' | 'userId' | 'service'>) => Promise<void>
   removeFromCart: (id: number) => Promise<void>
   clearCart: () => Promise<void>
   refreshCart: () => Promise<void>
@@ -39,47 +41,53 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-// Genera un ID di sessione unico
-function generateSessionId(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36)
-}
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
-  const [sessionId, setSessionId] = useState('')
+  const { user, loading: authLoading } = useAuth() // 🔗 Integrazione con autenticazione
+  const router = useRouter()
 
-  // Inizializza sessionId dal localStorage o crea uno nuovo
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      let storedSessionId = localStorage.getItem('cart-session-id')
-      if (!storedSessionId) {
-        storedSessionId = generateSessionId()
-        localStorage.setItem('cart-session-id', storedSessionId)
-      }
-      setSessionId(storedSessionId)
-    }
-  }, [])
+  const isAuthenticated = !!user && !authLoading
 
-  // Carica il carrello quando sessionId è disponibile
+  // 🔄 Carica il carrello quando l'utente è autenticato
   useEffect(() => {
-    if (sessionId) {
+    if (isAuthenticated) {
       refreshCart()
+    } else if (!authLoading) {
+      // Se non è autenticato e l'auth non sta caricando, pulisci il carrello locale
+      setCartItems([])
     }
-  }, [sessionId])
+  }, [isAuthenticated, authLoading])
+
+  // 🔒 Gestione errori di autenticazione
+  const handleAuthError = (error: any) => {
+    console.error('Errore di autenticazione:', error)
+    setCartItems([]) // Pulisci carrello locale
+    router.push('/auth/login') // Reindirizza al login
+  }
 
   const refreshCart = async () => {
-    if (!sessionId) return
+    if (!isAuthenticated) return
     
     setLoading(true)
     try {
-      const response = await fetch(`/api/cart?sessionId=${sessionId}`)
+      // ✅ Nessun sessionId necessario - l'API usa l'autenticazione
+      const response = await fetch('/api/cart')
+      
+      if (response.status === 401) {
+        handleAuthError('Non autenticato')
+        return
+      }
+      
       if (response.ok) {
         const items = await response.json()
         setCartItems(items.map((item: any) => ({
           ...item,
-          bookingDate: new Date(item.bookingDate)
+          bookingDate: new Date(item.bookingDate) // Necessario per trasformare la stringa in data
         })))
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Errore nel caricamento del carrello')
       }
     } catch (error) {
       console.error('Errore nel caricamento del carrello:', error)
@@ -88,7 +96,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const addToCart = async (item: Omit<CartItem, 'id' | 'sessionId' | 'service'>) => {
+  const addToCart = async (item: Omit<CartItem, 'id' | 'userId' | 'service'>) => {
+    if (!isAuthenticated) {
+      handleAuthError('Devi essere autenticato per aggiungere al carrello')
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch('/api/cart', {
@@ -98,15 +111,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({
           ...item,
-          sessionId,
           bookingDate: item.bookingDate.toISOString()
         }),
       })
 
+      if (response.status === 401) {
+        handleAuthError('Sessione scaduta')
+        return
+      }
+
       if (response.ok) {
         await refreshCart()
       } else {
-        throw new Error('Errore nell\'aggiunta al carrello')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Errore nell\'aggiunta al carrello')
       }
     } catch (error) {
       console.error('Errore nell\'aggiunta al carrello:', error)
@@ -117,16 +135,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const removeFromCart = async (id: number) => {
+    if (!isAuthenticated) {
+      handleAuthError('Devi essere autenticato per rimuovere dal carrello')
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch(`/api/cart?id=${id}`, {
         method: 'DELETE',
       })
 
+      if (response.status === 401) {
+        handleAuthError('Sessione scaduta')
+        return
+      }
+
       if (response.ok) {
         await refreshCart()
       } else {
-        throw new Error('Errore nella rimozione dal carrello')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Errore nella rimozione dal carrello')
       }
     } catch (error) {
       console.error('Errore nella rimozione dal carrello:', error)
@@ -137,6 +166,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const clearCart = async () => {
+    if (!isAuthenticated){
+      handleAuthError('Devi essere autenticato per svuotare il carrello')
+      return
+    } 
+
     // Rimuovi tutti gli elementi uno per uno
     for (const item of cartItems) {
       await removeFromCart(item.id)
@@ -144,6 +178,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const checkout = async (customerInfo?: { name: string; email: string }) => {
+    if (!isAuthenticated) {
+      handleAuthError('Devi essere autenticato per effettuare il checkout')
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch('/api/cart/checkout', {
@@ -152,17 +191,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId,
           customerInfo
         }),
       })
+
+      if (response.status === 401) {
+        handleAuthError('Sessione scaduta durante il checkout')
+        return
+      }
 
       if (response.ok) {
         const result = await response.json()
         setCartItems([]) // Svuota il carrello locale
         return result
       } else {
-        throw new Error('Errore nel checkout')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Errore nel checkout')
       }
     } catch (error) {
       console.error('Errore nel checkout:', error)
@@ -183,7 +227,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value: CartContextType = {
     cartItems,
     loading,
-    sessionId,
+    isAuthenticated, // ✅ Nuovo campo
     addToCart,
     removeFromCart,
     clearCart,
