@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createClient } from '@/lib/supabase/server'
 
-// GET: Ottieni tutte le prenotazioni
+// GET: Ottieni solo le prenotazioni dell'utente autenticato
 export async function GET() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
+    // 🔒 SICUREZZA: Mostra solo le prenotazioni dell'utente autenticato
     const bookings = await prisma.booking.findMany({
+      where: {
+        userId: user.id // Solo le MIE prenotazioni
+      },
       include: {
         service: true
       },
@@ -23,9 +34,20 @@ export async function GET() {
   }
 }
 
-// POST: Crea una nuova prenotazione
+// POST: Crea una nuova prenotazione per l'utente autenticato
 export async function POST(request: NextRequest) {
   try {
+    // 🔒 CONTROLLO AUTENTICAZIONE
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Accesso non autorizzato. Devi essere autenticato per creare una prenotazione.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const {
       customerName,
@@ -58,9 +80,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Crea la prenotazione
+    // 🔒 Crea la prenotazione associata all'utente autenticato
     const booking = await prisma.booking.create({
       data: {
+        userId: user.id, // 🔗 Collego la prenotazione all'utente
         customerName,
         customerEmail,
         petName,
