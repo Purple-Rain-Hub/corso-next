@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AuthProvider } from '@/lib/auth/context'
 import { CartProvider } from '@/lib/context/CartContext'
+import Navbar from './components/Navbar'
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <CartProvider>
+            <Navbar />
             {children}
           </CartProvider>
         </AuthProvider>

@@ -402,7 +402,7 @@ export default function PrenotazioniPage() {
                   required
                   value={formData.petName}
                   onChange={(e) => setFormData({...formData, petName: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
                   placeholder="Es. Buddy"
                 />
               </div>
@@ -415,14 +415,14 @@ export default function PrenotazioniPage() {
                   required
                   value={formData.petType}
                   onChange={(e) => setFormData({...formData, petType: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
                 >
-                  <option value="">Seleziona tipo</option>
-                  <option value="Cane">🐕 Cane</option>
-                  <option value="Gatto">🐱 Gatto</option>
-                  <option value="Coniglio">🐰 Coniglio</option>
-                  <option value="Uccello">🐦 Uccello</option>
-                  <option value="Altro">🐾 Altro</option>
+                  <option value="" className="text-gray-500">Seleziona tipo</option>
+                  <option value="Cane" className="text-gray-900">🐕 Cane</option>
+                  <option value="Gatto" className="text-gray-900">🐱 Gatto</option>
+                  <option value="Coniglio" className="text-gray-900">🐰 Coniglio</option>
+                  <option value="Uccello" className="text-gray-900">🐦 Uccello</option>
+                  <option value="Altro" className="text-gray-900">🐾 Altro</option>
                 </select>
               </div>
 
@@ -436,7 +436,7 @@ export default function PrenotazioniPage() {
                   min={new Date().toISOString().split('T')[0]}
                   value={formData.bookingDate}
                   onChange={(e) => setFormData({...formData, bookingDate: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
                 />
               </div>
 
@@ -448,16 +448,16 @@ export default function PrenotazioniPage() {
                   required
                   value={formData.bookingTime}
                   onChange={(e) => setFormData({...formData, bookingTime: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
                 >
-                  <option value="">Seleziona orario</option>
-                  <option value="09:00">🌅 09:00</option>
-                  <option value="10:00">🌅 10:00</option>
-                  <option value="11:00">🌅 11:00</option>
-                  <option value="14:00">☀️ 14:00</option>
-                  <option value="15:00">☀️ 15:00</option>
-                  <option value="16:00">☀️ 16:00</option>
-                  <option value="17:00">🌅 17:00</option>
+                  <option value="" className="text-gray-500">Seleziona orario</option>
+                  <option value="09:00" className="text-gray-900">🌅 09:00</option>
+                  <option value="10:00" className="text-gray-900">🌅 10:00</option>
+                  <option value="11:00" className="text-gray-900">🌅 11:00</option>
+                  <option value="14:00" className="text-gray-900">☀️ 14:00</option>
+                  <option value="15:00" className="text-gray-900">☀️ 15:00</option>
+                  <option value="16:00" className="text-gray-900">☀️ 16:00</option>
+                  <option value="17:00" className="text-gray-900">🌅 17:00</option>
                 </select>
               </div>
 
@@ -469,7 +469,7 @@ export default function PrenotazioniPage() {
                   type="text"
                   value={formData.customerName}
                   onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
                   placeholder="Il tuo nome"
                 />
               </div>
@@ -482,7 +482,7 @@ export default function PrenotazioniPage() {
                   type="email"
                   value={formData.customerEmail}
                   onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
-                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
                   placeholder="tua@email.com"
                 />
               </div>

@@ -1,8 +1,6 @@
 'use client'
 
-import { useAuth } from '@/lib/auth/context'
 import Link from 'next/link'
-import Image from 'next/image'
 
 // Dati di esempio per i prodotti
 const products = [
@@ -57,54 +55,8 @@ const products = [
 ]
 
 export default function Home() {
-  const { user, loading } = useAuth()
-
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header con Navigazione */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">🐾 PetShop</h1>
-              <p className="ml-4 text-gray-600 hidden sm:block">
-                Il tuo negozio di fiducia per gli amici a quattro zampe
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {loading ? (
-                <div className="text-gray-500">Caricamento...</div>
-              ) : user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-gray-700">Ciao, {user.email}!</span>
-                  <Link
-                    href="/dashboard"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Dashboard
-                  </Link>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-4">
-                  <Link
-                    href="/auth/login"
-                    className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-                  >
-                    Accedi
-                  </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Registrati
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
