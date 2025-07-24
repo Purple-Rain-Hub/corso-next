@@ -31,6 +31,7 @@ model Service {
 // Modello per le prenotazioni
 model Booking {
   id          Int      @id @default(autoincrement())
+  userId      String   // 🔗 Collegamento all'ID utente Supabase
   customerName String
   customerEmail String
   petName     String
@@ -52,7 +53,7 @@ model Booking {
 // Modello per gli elementi del carrello
 model CartItem {
   id         Int      @id @default(autoincrement())
-  sessionId  String   // per identificare il carrello dell'utente
+  userId     String   // 🔗 Collegamento all'ID utente Supabase (rinominato da sessionId)
   serviceId  Int
   petName    String
   petType    String
