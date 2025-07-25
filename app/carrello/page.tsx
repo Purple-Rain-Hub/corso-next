@@ -131,20 +131,20 @@ export default function CarrelloPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-6">
+              <div className="mt-6">
                   <button 
                     onClick={handleCheckout}
                     disabled={isCheckingOut || checkoutSuccess}
                     className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-medium transition-colors"
                   >
                     {isCheckingOut ? 'Elaborazione...' : checkoutSuccess ? 'Completato!' : 'Procedi al Checkout'}
-                  </button>
+                </button>
                   {checkoutSuccess && (
                     <p className="mt-2 text-sm text-green-600 text-center">
                       Checkout completato con successo! Le tue prenotazioni sono state create.
                     </p>
                   )}
-                </div>
+              </div>
               )}
             </div>
           </div>

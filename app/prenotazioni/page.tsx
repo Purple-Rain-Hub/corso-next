@@ -413,11 +413,15 @@ export default function PrenotazioniPage() {
                 <input
                   type="text"
                   required
+                  maxLength={50}
                   value={formData.petName}
                   onChange={(e) => setFormData({...formData, petName: e.target.value})}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
                   placeholder="Es. Buddy"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  📝 Max 50 caratteri - Solo lettere, spazi, apostrofi e trattini
+                </p>
               </div>
 
               <div>
@@ -435,6 +439,10 @@ export default function PrenotazioniPage() {
                   <option value="Gatto" className="text-gray-900">🐱 Gatto</option>
                   <option value="Coniglio" className="text-gray-900">🐰 Coniglio</option>
                   <option value="Uccello" className="text-gray-900">🐦 Uccello</option>
+                  <option value="Criceto" className="text-gray-900">🐹 Criceto</option>
+                  <option value="Pesce" className="text-gray-900">🐠 Pesce</option>
+                  <option value="Tartaruga" className="text-gray-900">🐢 Tartaruga</option>
+                  <option value="Furetto" className="text-gray-900">🦫 Furetto</option>
                   <option value="Altro" className="text-gray-900">🐾 Altro</option>
                 </select>
               </div>
@@ -446,11 +454,18 @@ export default function PrenotazioniPage() {
                 <input
                   type="date"
                   required
-                  min={new Date().toISOString().split('T')[0]}
+                  min={(() => {
+                    const tomorrow = new Date()
+                    tomorrow.setDate(tomorrow.getDate() + 1)
+                    return tomorrow.toISOString().split('T')[0]
+                  })()}
                   value={formData.bookingDate}
                   onChange={(e) => setFormData({...formData, bookingDate: e.target.value})}
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  ⚠️ Le prenotazioni devono essere effettuate con almeno un giorno di anticipo
+                </p>
               </div>
 
               <div>
@@ -464,14 +479,27 @@ export default function PrenotazioniPage() {
                   className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
                 >
                   <option value="" className="text-gray-500">Seleziona orario</option>
+                  <option value="08:00" className="text-gray-900">🌅 08:00</option>
+                  <option value="08:30" className="text-gray-900">🌅 08:30</option>
                   <option value="09:00" className="text-gray-900">🌅 09:00</option>
+                  <option value="09:30" className="text-gray-900">🌅 09:30</option>
                   <option value="10:00" className="text-gray-900">🌅 10:00</option>
+                  <option value="10:30" className="text-gray-900">🌅 10:30</option>
                   <option value="11:00" className="text-gray-900">🌅 11:00</option>
+                  <option value="11:30" className="text-gray-900">🌅 11:30</option>
                   <option value="14:00" className="text-gray-900">☀️ 14:00</option>
+                  <option value="14:30" className="text-gray-900">☀️ 14:30</option>
                   <option value="15:00" className="text-gray-900">☀️ 15:00</option>
+                  <option value="15:30" className="text-gray-900">☀️ 15:30</option>
                   <option value="16:00" className="text-gray-900">☀️ 16:00</option>
+                  <option value="16:30" className="text-gray-900">☀️ 16:30</option>
                   <option value="17:00" className="text-gray-900">🌅 17:00</option>
+                  <option value="17:30" className="text-gray-900">🌅 17:30</option>
+                  <option value="18:00" className="text-gray-900">🌅 18:00</option>
                 </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  🕐 Orari di apertura: 08:00 - 18:00 (pausa pranzo: 12:00 - 14:00)
+                </p>
               </div>
 
               <div>
