@@ -1,25 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-interface Booking {
-  id: number
-  customerName: string
-  customerEmail: string
-  petName: string
-  petType: string
-  bookingDate: string
-  bookingTime: string
-  status: string
-  notes?: string
-  createdAt: string
-  service: {
-    id: number
-    name: string
-    price: number
-    duration: number
-  }
-}
+import { Booking } from '@/lib/types'
 
 export default function GestionePrenotazioni() {
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -43,8 +25,8 @@ export default function GestionePrenotazioni() {
     loadBookings()
   }, [])
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('it-IT')
+  const formatDate = (date: string | Date) => {
+    return new Date(date).toLocaleDateString('it-IT')
   }
 
   const formatTime = (time: string) => {

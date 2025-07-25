@@ -3,15 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useCart } from '@/lib/context/CartContext'
 import { useAuth } from '@/lib/auth/context'
-
-// Tipi TypeScript
-interface Service {
-  id: number
-  name: string
-  description: string
-  price: number
-  duration: number
-}
+import { Service } from '@/lib/types'
 
 // Icone semplici con SVG
 const Icons = {
@@ -121,7 +113,7 @@ export default function PrenotazioniPage() {
       await addToCart({
         serviceId: selectedService.id,
         petName: formData.petName,
-        petType: formData.petType,
+        petType: formData.petType as any, // Il tipo viene validato dal backend
         bookingDate: new Date(formData.bookingDate),
         bookingTime: formData.bookingTime,
         customerName: formData.customerName,

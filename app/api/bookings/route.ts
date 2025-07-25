@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { bookingSchema, validateInput } from '@/lib/validation/schemas'
+import { bookingSchema, validateInput, BookingInput } from '@/lib/validation/schemas'
 
 // GET: Ottieni solo le prenotazioni dell'utente autenticato
 export async function GET() {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validatedData = validation.data
+    const validatedData: BookingInput = validation.data
 
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({

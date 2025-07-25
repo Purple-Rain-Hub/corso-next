@@ -3,34 +3,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth/context'
 import { useRouter } from 'next/navigation'
-
-// Tipi TypeScript aggiornati
-interface Service {
-  id: number
-  name: string
-  description: string
-  price: number
-  duration: number
-}
-
-interface CartItem {
-  id: number
-  userId: string // ✅ Aggiornato da sessionId a userId
-  serviceId: number
-  petName: string
-  petType: string
-  bookingDate: Date
-  bookingTime: string
-  customerName?: string
-  customerEmail?: string
-  service: Service
-}
+import { CartItem, CartItemInput } from '@/lib/types'
 
 interface CartContextType {
   cartItems: CartItem[]
   loading: boolean
-  isAuthenticated: boolean // ✅ Nuovo: stato autenticazione
-  addToCart: (item: Omit<CartItem, 'id' | 'userId' | 'service'>) => Promise<void>
+  isAuthenticated: boolean
+  addToCart: (item: CartItemInput) => Promise<void>
   removeFromCart: (id: number) => Promise<void>
   clearCart: () => Promise<void>
   refreshCart: () => Promise<void>
@@ -96,7 +75,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const addToCart = async (item: Omit<CartItem, 'id' | 'userId' | 'service'>) => {
+  const addToCart = async (item: CartItemInput) => {
     if (!isAuthenticated) {
       handleAuthError('Devi essere autenticato per aggiungere al carrello')
       return

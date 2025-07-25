@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { cartItemSchema, queryParamsSchema, validateInput } from '@/lib/validation/schemas'
+import { cartItemSchema, queryParamsSchema, validateInput, CartItemInput, QueryParams } from '@/lib/validation/schemas'
 
 // GET: Ottieni elementi del carrello per l'utente autenticato
 export async function GET(request: NextRequest) {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validatedData = validation.data
+    const validatedData: CartItemInput = validation.data
 
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({
@@ -154,7 +154,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const { id } = validation.data
+    const { id }: QueryParams = validation.data
 
     // 🔒 VERIFICA CHE L'ELEMENTO APPARTENGA ALL'UTENTE
     const cartItem = await prisma.cartItem.findUnique({

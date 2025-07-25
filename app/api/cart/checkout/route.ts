@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { checkoutSchema, validateInput } from '@/lib/validation/schemas'
+import { checkoutSchema, validateInput, CheckoutInput } from '@/lib/validation/schemas'
 
 // POST: Converti carrello in prenotazioni (solo per utenti autenticati)
 export async function POST(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { customerInfo } = validation.data
+    const { customerInfo }: CheckoutInput = validation.data
 
     // 🔒 OTTENGO SOLO GLI ELEMENTI DEL CARRELLO DELL'UTENTE AUTENTICATO
     // Uso userId invece di sessionId per chiarezza
