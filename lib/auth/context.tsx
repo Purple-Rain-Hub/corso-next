@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth])
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     })
+
     if (error) {
       // Gestiamo specificamente l'errore di email già registrata
       if (error.message.includes('User already registered') || 
@@ -79,6 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Per tutti gli altri errori, mostriamo un messaggio generico ma utile
       console.error('Errore durante la registrazione:', error)
       throw new Error('Errore durante la registrazione. Verifica i dati inseriti e riprova.')
+    }
+
+    // 🔧 RILEVAMENTO EMAIL GIÀ REGISTRATA
+    // Supabase non restituisce errori espliciti per email duplicate ma 
+    // restituisce un utente con identities vuoto
+    if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
+      throw new Error('Questa email è già registrata. Prova ad accedere o usa "Password dimenticata?" se hai perso le credenziali.')
     }
   }
 
