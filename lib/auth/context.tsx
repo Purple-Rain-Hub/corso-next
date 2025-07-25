@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth])
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const response = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,8 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     })
-    console.log('response', response) //TODO: rimuovere
-    const { error } = response
     if (error) {
       // Gestiamo specificamente l'errore di email già registrata
       if (error.message.includes('User already registered') || 
