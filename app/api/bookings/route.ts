@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { bookingSchema, validateInput } from '@/lib/validation/schemas'
 
 // GET: Ottieni solo le prenotazioni dell'utente autenticato
 export async function GET() {
@@ -49,28 +50,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const {
-      customerName,
-      customerEmail,
-      petName,
-      petType,
-      serviceId,
-      bookingDate,
-      bookingTime,
-      notes
-    } = body
 
-    // Validazione base
-    if (!customerName || !customerEmail || !petName || !petType || !serviceId || !bookingDate || !bookingTime) {
+    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
+    const validation = validateInput(bookingSchema, body)
+
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Tutti i campi obbligatori devono essere compilati' },
+        { error: validation.error },
         { status: 400 }
       )
     }
 
+    const validatedData = validation.data
+
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({
-      where: { id: serviceId }
+      where: { id: validatedData.serviceId }
     })
 
     if (!service) {
@@ -80,18 +75,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 🔒 Crea la prenotazione associata all'utente autenticato
+    // 🔒 Controllo conflitti di prenotazione
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        userId: user.id,
+        serviceId: validatedData.serviceId,
+        bookingDate: validatedData.bookingDate,
+        bookingTime: validatedData.bookingTime
+      }
+    })
+
+    if (existingBooking) {
+      return NextResponse.json(
+        { error: 'Hai già una prenotazione per questo servizio in questa data e orario' },
+        { status: 409 }
+      )
+    }
+
+    // 🔒 Crea la prenotazione associata all'utente autenticato con dati validati
     const booking = await prisma.booking.create({
       data: {
-        userId: user.id, // 🔗 Collego la prenotazione all'utente
-        customerName,
-        customerEmail,
-        petName,
-        petType,
-        serviceId,
-        bookingDate: new Date(bookingDate),
-        bookingTime,
-        notes: notes || null
+        userId: user.id,
+        customerName: validatedData.customerName,
+        customerEmail: validatedData.customerEmail,
+        petName: validatedData.petName,
+        petType: validatedData.petType,
+        serviceId: validatedData.serviceId,
+        bookingDate: validatedData.bookingDate,
+        bookingTime: validatedData.bookingTime,
+        notes: validatedData.notes || null
       },
       include: {
         service: true

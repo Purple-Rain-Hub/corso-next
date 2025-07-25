@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { checkoutSchema, validateInput } from '@/lib/validation/schemas'
 
 // POST: Converti carrello in prenotazioni (solo per utenti autenticati)
 export async function POST(request: NextRequest) {
@@ -8,7 +9,7 @@ export async function POST(request: NextRequest) {
     // 🔒 CONTROLLO AUTENTICAZIONE
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Accesso non autorizzato. Devi essere autenticato per effettuare il checkout.' },
@@ -17,7 +18,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { customerInfo } = body
+
+    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
+    const validation = validateInput(checkoutSchema, body)
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400 }
+      )
+    }
+
+    const { customerInfo } = validation.data
 
     // 🔒 OTTENGO SOLO GLI ELEMENTI DEL CARRELLO DELL'UTENTE AUTENTICATO
     // Uso userId invece di sessionId per chiarezza
@@ -58,27 +70,27 @@ export async function POST(request: NextRequest) {
     // 🔒 TRANSAZIONE ATOMICA per garantire consistenza
     const result = await prisma.$transaction(async (tx) => {
       // Crea le prenotazioni con collegamento all'utente
-      const bookings = await Promise.all(
-        cartItems.map(item => 
+    const bookings = await Promise.all(
+      cartItems.map(item => 
           tx.booking.create({
-            data: {
+          data: {
               userId: user.id, // 🔗 Collego la prenotazione all'utente
               customerName: finalCustomerName,
               customerEmail: finalCustomerEmail,
-              petName: item.petName,
-              petType: item.petType,
-              serviceId: item.serviceId,
-              bookingDate: item.bookingDate,
-              bookingTime: item.bookingTime,
+            petName: item.petName,
+            petType: item.petType,
+            serviceId: item.serviceId,
+            bookingDate: item.bookingDate,
+            bookingTime: item.bookingTime,
               status: 'confirmed',
               notes: 'Prenotazione creata tramite checkout online' // 🔒 Rimossa esposizione ID utente
-            },
-            include: {
-              service: true
-            }
-          })
-        )
+          },
+          include: {
+            service: true
+          }
+        })
       )
+    )
 
       // Svuota SOLO il carrello dell'utente autenticato
       await tx.cartItem.deleteMany({

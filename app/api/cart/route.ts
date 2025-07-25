@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { cartItemSchema, queryParamsSchema, validateInput } from '@/lib/validation/schemas'
 
 // GET: Ottieni elementi del carrello per l'utente autenticato
 export async function GET(request: NextRequest) {
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     // 🔒 CONTROLLO AUTENTICAZIONE
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Accesso non autorizzato. Devi essere autenticato per vedere il carrello.' },
@@ -54,27 +55,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const {
-      serviceId,
-      petName,
-      petType,
-      bookingDate,
-      bookingTime,
-      customerName,
-      customerEmail
-    } = body
 
-    // Validazione base
-    if (!serviceId || !petName || !petType || !bookingDate || !bookingTime) {
+    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
+    const validation = validateInput(cartItemSchema, {
+      ...body,
+      bookingDate: body.bookingDate // Zod gestirà la conversione da stringa a Date
+    })
+
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Tutti i campi obbligatori devono essere compilati' },
+        { error: validation.error },
         { status: 400 }
       )
     }
 
+    const validatedData = validation.data
+
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({
-      where: { id: serviceId }
+      where: { id: validatedData.serviceId }
     })
 
     if (!service) {
@@ -84,17 +83,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Aggiungi al carrello dell'utente autenticato
+    // 🔒 Controllo conflitti di prenotazione
+    const existingBooking = await prisma.cartItem.findFirst({
+      where: {
+        userId: user.id,
+        serviceId: validatedData.serviceId,
+        bookingDate: validatedData.bookingDate,
+        bookingTime: validatedData.bookingTime
+      }
+    })
+
+    if (existingBooking) {
+      return NextResponse.json(
+        { error: 'Hai già una prenotazione per questo servizio in questa data e orario' },
+        { status: 409 }
+      )
+    }
+
+    // Aggiungi al carrello dell'utente autenticato con dati validati
     const cartItem = await prisma.cartItem.create({
       data: {
-        userId: user.id, // Uso userId invece di sessionId
-        serviceId,
-        petName,
-        petType,
-        bookingDate: new Date(bookingDate),
-        bookingTime,
-        customerName: customerName || user.email || null,
-        customerEmail: customerEmail || user.email || null
+        userId: user.id,
+        serviceId: validatedData.serviceId,
+        petName: validatedData.petName,
+        petType: validatedData.petType,
+        bookingDate: validatedData.bookingDate,
+        bookingTime: validatedData.bookingTime,
+        customerName: validatedData.customerName || user.email || null,
+        customerEmail: validatedData.customerEmail || user.email || null
       },
       include: {
         service: true
@@ -126,18 +142,23 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    const rawId = searchParams.get('id')
 
-    if (!id) {
+    // 🛡️ VALIDAZIONE ROBUSTA DELL'ID
+    const validation = validateInput(queryParamsSchema, { id: rawId })
+
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'ID elemento richiesto' },
+        { error: validation.error },
         { status: 400 }
       )
     }
 
+    const { id } = validation.data
+
     // 🔒 VERIFICA CHE L'ELEMENTO APPARTENGA ALL'UTENTE
     const cartItem = await prisma.cartItem.findUnique({
-      where: { id: parseInt(id) }
+      where: { id }
     })
 
     if (!cartItem) {
@@ -156,7 +177,7 @@ export async function DELETE(request: NextRequest) {
 
     await prisma.cartItem.delete({
       where: {
-        id: parseInt(id)
+        id: id
       }
     })
 
