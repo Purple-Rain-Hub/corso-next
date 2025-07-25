@@ -90,7 +90,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({
           ...item,
-          bookingDate: item.bookingDate.toISOString()
+          bookingDate: item.bookingDate.toISOString().split('T')[0]
         }),
       })
 
