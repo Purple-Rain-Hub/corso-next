@@ -120,7 +120,7 @@ export default function Navbar() {
               /* Utente autenticato */
               <div className="flex items-center space-x-3">
                 <span className="text-sm text-gray-700">
-                  Ciao, <span className="font-medium">{user.email?.split('@')[0]}</span>!
+                  Ciao, <span className="font-medium">{user?.user_metadata?.full_name || 'Cliente'}</span>!
                 </span>
                 <button
                   onClick={signOut}
@@ -257,7 +257,7 @@ export default function Navbar() {
                 ) : user ? (
                   <div className="px-3 py-2 space-y-2">
                     <div className="text-sm text-gray-700">
-                      Ciao, <span className="font-medium">{user.email?.split('@')[0]}</span>!
+                      Ciao, <span className="font-medium">{user?.user_metadata?.full_name || 'Cliente'}</span>!
                     </div>
                     <button
                       onClick={() => {

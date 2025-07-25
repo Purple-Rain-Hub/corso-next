@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth/context'
 import Link from 'next/link'
 
 export default function SignUpPage() {
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -17,6 +18,20 @@ export default function SignUpPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // Validazione nome
+    if (fullName.trim().length < 2) {
+      setError('Il nome deve essere di almeno 2 caratteri')
+      setLoading(false)
+      return
+    }
+
+    // Validazione caratteri nome (stessa regex del nameSchema)
+    if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(fullName.trim())) {
+      setError('Il nome può contenere solo lettere, spazi, apostrofi e trattini')
+      setLoading(false)
+      return
+    }
 
     // Validazione password
     if (password !== confirmPassword) {
@@ -32,7 +47,7 @@ export default function SignUpPage() {
     }
 
     try {
-      await signUp(email, password)
+      await signUp(email, password, fullName.trim())
       setSuccess(true)
     } catch (error: any) {
       setError(error.message || 'Errore durante la registrazione')
@@ -84,6 +99,25 @@ export default function SignUpPage() {
           )}
           
           <div className="space-y-4">
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+                Nome Completo *
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Mario Rossi"
+                maxLength={50}
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Solo lettere, spazi, apostrofi e trattini
+              </p>
+            </div>
+            
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email

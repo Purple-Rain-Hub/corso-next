@@ -21,7 +21,7 @@ export default function CarrelloPage() {
     setIsCheckingOut(true)
     try {
       const result = await checkout({
-        name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Cliente',
+        name: user?.user_metadata?.full_name || 'Cliente',
         email: user?.email || ''
       })
       

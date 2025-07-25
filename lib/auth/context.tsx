@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 interface AuthContextType {
   user: User | null
   loading: boolean
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string, fullName: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
@@ -41,12 +41,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, fullName: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+        data: {
+          full_name: fullName
+        }
       }
     })
     if (error) throw error

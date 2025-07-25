@@ -52,6 +52,11 @@ export default function DashboardPage() {
               
               <div className="space-y-4">
                 <div>
+                  <span className="text-sm font-medium text-gray-500">Nome:</span>
+                  <p className="mt-1 text-sm text-gray-900">{user?.user_metadata?.full_name || 'Non specificato'}</p>
+                </div>
+                
+                <div>
                   <span className="text-sm font-medium text-gray-500">Email:</span>
                   <p className="mt-1 text-sm text-gray-900">{user?.email}</p>
                 </div>
