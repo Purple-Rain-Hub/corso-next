@@ -12,12 +12,36 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [checkingEmail, setCheckingEmail] = useState(false)
   const { signUp } = useAuth()
+
+  // Funzione per validare l'email in tempo reale
+  const validateEmail = (emailValue: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (emailValue && !emailRegex.test(emailValue)) {
+      setEmailError('Formato email non valido')
+      return false
+    }
+    setEmailError('')
+    return true
+  }
+
+  // Gestisce il cambiamento dell'email
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const emailValue = e.target.value
+    setEmail(emailValue)
+    setError('') // Resetta eventuali errori globali precedenti
+    
+    // Valida il formato email in tempo reale per una migliore UX
+    validateEmail(emailValue)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setEmailError('')
 
     // Validazione nome
     if (fullName.trim().length < 2) {
@@ -29,6 +53,12 @@ export default function SignUpPage() {
     // Validazione caratteri nome (stessa regex del nameSchema)
     if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(fullName.trim())) {
       setError('Il nome può contenere solo lettere, spazi, apostrofi e trattini')
+      setLoading(false)
+      return
+    }
+
+    // Validazione email
+    if (!validateEmail(email)) {
       setLoading(false)
       return
     }
@@ -50,6 +80,7 @@ export default function SignUpPage() {
       await signUp(email, password, fullName.trim())
       setSuccess(true)
     } catch (error: any) {
+      // Il context ora gestisce già i messaggi di errore per email duplicate
       setError(error.message || 'Errore durante la registrazione')
     } finally {
       setLoading(false)
@@ -127,10 +158,17 @@ export default function SignUpPage() {
                 type="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                onChange={handleEmailChange}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none ${
+                  emailError 
+                    ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="la-tua-email@esempio.com"
               />
+              {emailError && (
+                <p className="mt-1 text-xs text-red-500">{emailError}</p>
+              )}
             </div>
             
             <div>

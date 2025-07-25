@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase.auth])
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const response = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,7 +52,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     })
-    if (error) throw error
+    console.log('response', response) //TODO: rimuovere
+    const { error } = response
+    if (error) {
+      // Gestiamo specificamente l'errore di email già registrata
+      if (error.message.includes('User already registered') || 
+          error.message.includes('already been registered') ||
+          error.message.includes('already registered') ||
+          error.message.includes('Email rate limit exceeded') ||
+          error.code === 'user_already_exists' ||
+          error.code === 'email_address_not_authorized') {
+        throw new Error('Questa email è già registrata. Prova ad accedere o usa "Password dimenticata?" se hai perso le credenziali.')
+      }
+      
+      // Gestiamo altri errori comuni
+      if (error.message.includes('Password should be at least')) {
+        throw new Error('La password deve essere di almeno 6 caratteri')
+      }
+      
+      if (error.message.includes('Invalid email')) {
+        throw new Error('L\'indirizzo email non è valido')
+      }
+      
+      if (error.message.includes('Password')) {
+        throw new Error('La password non rispetta i requisiti di sicurezza')
+      }
+      
+      // Per tutti gli altri errori, mostriamo un messaggio generico ma utile
+      console.error('Errore durante la registrazione:', error)
+      throw new Error('Errore durante la registrazione. Verifica i dati inseriti e riprova.')
+    }
   }
 
   const signIn = async (email: string, password: string) => {
