@@ -176,7 +176,7 @@ export function useAdminAuth(): UseAdminAuthReturn {
     isSuperAdmin: adminUser ? isSuperAdmin(adminUser.role) && adminUser.isActive : false,
     isLoading: loading || isLoading,
     error,
-    hasPermission: checkPermission,
+    hasPermission: checkPermission, //scritta cosi per una questione di semantica
     refreshAdminUser,
     clearError
   }
