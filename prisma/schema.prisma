@@ -11,6 +11,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum per i ruoli utente
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// Modello per gli utenti (sincronizzato con Supabase)
+model User {
+  id            String   @id // ID da Supabase
+  email         String   @unique
+  fullName      String?
+  role          UserRole @default(CUSTOMER)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relazioni
+  bookings      Booking[]
+  cartItems     CartItem[]
+  
+  @@map("users")
+}
+
 // Modello per i servizi prenotabili (ad esempio servizi del pet shop)
 model Service {
   id          Int      @id @default(autoincrement())
@@ -44,7 +69,8 @@ model Booking {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relazione con il servizio
+  // Relazioni
+  user        User?    @relation(fields: [userId], references: [id])
   service     Service  @relation(fields: [serviceId], references: [id])
   
   @@map("bookings")
@@ -63,7 +89,8 @@ model CartItem {
   customerEmail String?
   createdAt  DateTime @default(now())
   
-  // Relazione con il servizio
+  // Relazioni
+  user       User?    @relation(fields: [userId], references: [id])
   service    Service  @relation(fields: [serviceId], references: [id])
   
   @@map("cart_items")
