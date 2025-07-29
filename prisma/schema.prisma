@@ -11,29 +11,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum per i ruoli utente
+// Enum per i ruoli utente (mantenuto per compatibilità)
 enum UserRole {
   CUSTOMER
   ADMIN
   SUPER_ADMIN
-}
-
-// Modello per gli utenti (sincronizzato con Supabase)
-model User {
-  id            String   @id // ID da Supabase
-  email         String   @unique
-  fullName      String?
-  role          UserRole @default(CUSTOMER)
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  lastLoginAt   DateTime?
-  
-  // Relazioni
-  bookings      Booking[]
-  cartItems     CartItem[]
-  
-  @@map("users")
 }
 
 // Modello per i servizi prenotabili (ad esempio servizi del pet shop)
@@ -56,7 +38,7 @@ model Service {
 // Modello per le prenotazioni
 model Booking {
   id          Int      @id @default(autoincrement())
-  userId      String   // 🔗 Collegamento all'ID utente Supabase
+  userId      String   // 🔗 ID utente Supabase (non più FK)
   customerName String
   customerEmail String
   petName     String
@@ -70,7 +52,6 @@ model Booking {
   updatedAt   DateTime @updatedAt
   
   // Relazioni
-  user        User?    @relation(fields: [userId], references: [id])
   service     Service  @relation(fields: [serviceId], references: [id])
   
   @@map("bookings")
@@ -79,7 +60,7 @@ model Booking {
 // Modello per gli elementi del carrello
 model CartItem {
   id         Int      @id @default(autoincrement())
-  userId     String   // 🔗 Collegamento all'ID utente Supabase (rinominato da sessionId)
+  userId     String   // 🔗 ID utente Supabase (non più FK)
   serviceId  Int
   petName    String
   petType    String
@@ -90,7 +71,6 @@ model CartItem {
   createdAt  DateTime @default(now())
   
   // Relazioni
-  user       User?    @relation(fields: [userId], references: [id])
   service    Service  @relation(fields: [serviceId], references: [id])
   
   @@map("cart_items")
