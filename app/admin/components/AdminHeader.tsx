@@ -8,7 +8,7 @@ import { ROLE_LABELS } from '@/lib/auth/roles'
 
 export function AdminHeader() {
   const { signOut } = useAuth()
-  const { adminUser } = useAdminAuth()
+  const { user } = useAdminAuth()
   const router = useRouter()
   const [showUserMenu, setShowUserMenu] = useState(false)
 
@@ -53,16 +53,16 @@ export function AdminHeader() {
                 {/* Avatar placeholder */}
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {adminUser?.fullName?.[0]?.toUpperCase() || adminUser?.email?.[0]?.toUpperCase() || 'A'}
+                    {user?.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'A'}
                   </span>
                 </div>
                 
                 <div className="text-left">
                   <p className="text-sm font-medium">
-                    {adminUser?.fullName || 'Amministratore'}
+                    {user?.fullName || 'Amministratore'}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {adminUser?.role ? ROLE_LABELS[adminUser.role] : 'Admin'}
+                    {user?.role ? ROLE_LABELS[user.role] : 'Admin'}
                   </p>
                 </div>
 
@@ -77,10 +77,10 @@ export function AdminHeader() {
                   {/* User info */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <p className="text-sm font-medium text-gray-900">
-                      {adminUser?.fullName || 'Amministratore'}
+                      {user?.fullName || 'Amministratore'}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {adminUser?.email}
+                      {user?.email}
                     </p>
                   </div>
 

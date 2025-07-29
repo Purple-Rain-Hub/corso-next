@@ -96,7 +96,7 @@ function QuickAction({
 }
 
 export default function AdminDashboard() {
-  const { adminUser, hasPermission } = useAdminAuth()
+  const { user, hasPermission } = useAdminAuth()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Benvenuto, {adminUser?.fullName || 'Amministratore'}! 👋
+          Benvenuto, {user?.fullName || 'Amministratore'}! 👋
         </h1>
         <p className="text-gray-600 mt-1">
           Ecco una panoramica del tuo business PetShop
