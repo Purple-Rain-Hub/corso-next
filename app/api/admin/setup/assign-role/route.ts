@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { UserRole } from '@/lib/generated/prisma'
-import { withAdminAuth, createSuccessResponse, createErrorResponse, syncUserToPrisma } from '@/lib/auth/serverAuth'
+import { UserRole } from '@/lib/auth/types'
+import { withAdminAuth, createSuccessResponse, createErrorResponse, updateUserMetadata } from '@/lib/auth/serverAuth'
 import { validateRole, canChangeRole, isValidRole } from '@/lib/auth/roles'
 
 // ⚠️ SOLO PER TESTING - Modificare in produzione
@@ -61,33 +61,11 @@ export const POST = withAdminAuth(async (req: NextRequest, { user }) => { //con 
       return createErrorResponse(finalRoleValidation.reason!, 'PERMISSION_DENIED', 403)
     }
 
-    // Aggiorna i metadata dell'utente
-    const { error: updateError } = await supabase.auth.admin.updateUserById(
-      targetUser.id,
-      {
-        user_metadata: {
-          ...targetUser.user_metadata,
-          role: role
-        }
-      }
-    )
+    // 🎯 SEMPLIFICATO: Aggiorna solo i metadata Supabase
+    const updateSuccess = await updateUserMetadata(targetUser.id, { role })
 
-    if (updateError) {
+    if (!updateSuccess) {
       return createErrorResponse('Errore nell\'aggiornamento del ruolo', 'UPDATE_ERROR', 500)
-    }
-
-    // 🔄 SINCRONIZZAZIONE: Aggiorna anche il database Prisma
-    try {
-      await syncUserToPrisma({
-        ...targetUser,
-        user_metadata: {
-          ...targetUser.user_metadata,
-          role: role
-        }
-      })
-    } catch (syncError) {
-      console.error('[SYNC] Errore sincronizzazione Prisma dopo aggiornamento ruolo:', syncError)
-      // Non fallire la richiesta, ma logga l'errore
     }
 
     // Log di sicurezza
@@ -133,6 +111,7 @@ export const GET = withAdminAuth(async (req: NextRequest, { user }) => {
       email: user.email,
       role: validateRole(user.user_metadata?.role),
       fullName: user.user_metadata?.full_name,
+      isActive: user.user_metadata?.isActive !== false,
       createdAt: user.created_at
     }))
 

@@ -7,16 +7,16 @@ const prisma = new PrismaClient()
 // GET /api/admin/services - Lista tutti i servizi
 export const GET = withAdminAuth(async (req: NextRequest) => {
   try {
-    const { searchParams } = new URL(req.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-    const search = searchParams.get('search') || ''
+    const { searchParams } = new URL(req.url) //recupera i parametri dall'URL
+    const page = parseInt(searchParams.get('page') || '1') //recupera il numero di pagina dall'URL
+    const limit = parseInt(searchParams.get('limit') || '10') //recupera il numero di elementi per pagina dall'URL
+    const search = searchParams.get('search') || '' //recupera la ricerca dall'URL
     
     const skip = (page - 1) * limit
 
     // Filtri di ricerca
     const where = search ? {
-      OR: [
+      OR: [ //OR è un array di oggetti, ogni oggetto è un filtro
         { name: { contains: search, mode: 'insensitive' as const } },
         { description: { contains: search, mode: 'insensitive' as const } }
       ]
@@ -25,10 +25,10 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
     // Carica servizi con conteggio prenotazioni
     const [services, total] = await Promise.all([
       prisma.service.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
+        where, //filtra per nome o descrizione
+        skip, //salta i primi elementi per arrivare alla pagina corrente
+        take: limit, //prende gli elementi della pagina corrente
+        orderBy: { createdAt: 'desc' }, //ordina per data di creazione decrescente
         include: {
           _count: {
             select: {
@@ -37,7 +37,7 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
           }
         }
       }),
-      prisma.service.count({ where })
+      prisma.service.count({ where }) //conta il numero di servizi che corrispondono al filtro
     ])
 
     return createSuccessResponse({
