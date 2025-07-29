@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { checkoutSchema, validateInput, CheckoutInput } from '@/lib/validation/schemas'
+import { checkoutSchema, validateInput } from '@/lib/validation/schemas'
+import type { CheckoutInput } from '@/lib/types'
 
 // POST: Converti carrello in prenotazioni (solo per utenti autenticati)
 export async function POST(request: NextRequest) {

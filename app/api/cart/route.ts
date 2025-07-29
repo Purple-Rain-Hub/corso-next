@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { cartItemSchema, queryParamsSchema, validateInput, CartItemInput, QueryParams } from '@/lib/validation/schemas'
+import { cartItemSchema, queryParamsSchema, validateInput } from '@/lib/validation/schemas'
+import type { CartItemInput, QueryParams } from '@/lib/types'
 
 // GET: Ottieni elementi del carrello per l'utente autenticato
 export async function GET(request: NextRequest) {

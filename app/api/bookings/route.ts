@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { bookingSchema, validateInput, BookingInput } from '@/lib/validation/schemas'
+import { bookingSchema, validateInput } from '@/lib/validation/schemas'
+import type { BookingInput } from '@/lib/types'
 
 // GET: Ottieni solo le prenotazioni dell'utente autenticato
 export async function GET() {
