@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { UserRole } from '@/lib/generated/prisma'
-import { isAdmin, hasPermission, Permission, validateRole } from './roles'
-import { prisma } from '@/lib/prisma'
+import { UserRole } from '@/lib/auth/types'
+import type { Permission } from '@/lib/auth/types'
+import { isAdmin, hasPermission, validateRole } from './roles'
 
 // Configurazione Supabase server-side
 async function createSupabaseServerClient() {
@@ -22,83 +22,14 @@ async function createSupabaseServerClient() {
   )
 }
 
-// Interfaccia per l'utente autenticato
+// Interfaccia per l'utente autenticato (semplificata)
 export interface AuthenticatedUser {
   id: string
   email: string
   role: UserRole
   fullName?: string
-  isActive?: boolean
+  isActive: boolean
   lastLoginAt?: Date
-}
-
-// 🔄 SINCRONIZZAZIONE: Crea o aggiorna utente in Prisma
-export async function syncUserToPrisma(supabaseUser: any): Promise<AuthenticatedUser> {
-  const role = validateRole(supabaseUser.user_metadata?.role)
-  
-  try {
-    const user = await prisma.user.upsert({
-      where: { id: supabaseUser.id },
-      update: {
-        email: supabaseUser.email || '',
-        fullName: supabaseUser.user_metadata?.full_name,
-        lastLoginAt: supabaseUser.last_sign_in_at ? new Date(supabaseUser.last_sign_in_at) : undefined,
-        updatedAt: new Date()
-      },
-      create: {
-        id: supabaseUser.id,
-        email: supabaseUser.email || '',
-        fullName: supabaseUser.user_metadata?.full_name,
-        role: role,
-        isActive: true,
-        lastLoginAt: supabaseUser.last_sign_in_at ? new Date(supabaseUser.last_sign_in_at) : undefined
-      }
-    })
-
-    return {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      fullName: user.fullName || undefined,
-      isActive: user.isActive,
-      lastLoginAt: user.lastLoginAt || undefined
-    }
-  } catch (error) {
-    console.error('[SYNC] Errore sincronizzazione utente:', error)
-    
-    // Fallback ai metadata Supabase se il database non è disponibile
-    return {
-      id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      role: role,
-      fullName: supabaseUser.user_metadata?.full_name,
-      isActive: true,
-      lastLoginAt: supabaseUser.last_sign_in_at ? new Date(supabaseUser.last_sign_in_at) : undefined
-    }
-  }
-}
-
-// 🔄 SINCRONIZZAZIONE: Aggiorna metadata Supabase da Prisma
-export async function syncRoleToSupabase(userId: string, role: UserRole): Promise<boolean> {
-  try {
-    const supabase = await createSupabaseAdminClient()
-    
-    const { error } = await supabase.auth.admin.updateUserById(userId, {
-      user_metadata: {
-        role: role
-      }
-    })
-
-    if (error) {
-      console.error('[SYNC] Errore aggiornamento metadata Supabase:', error)
-      return false
-    }
-
-    return true
-  } catch (error) {
-    console.error('[SYNC] Errore sincronizzazione verso Supabase:', error)
-    return false
-  }
 }
 
 // Crea client Supabase admin
@@ -118,7 +49,7 @@ async function createSupabaseAdminClient() {
   )
 }
 
-// 🔄 APPROCCIO IBRIDO: Ottieni utente con fallback intelligente
+// 🎯 SEMPLIFICATO: Ottieni utente direttamente da Supabase
 export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
   try {
     const supabase = await createSupabaseServerClient()
@@ -128,63 +59,47 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
       return null
     }
 
-    // STEP 1: Prova a ottenere dati dal database Prisma (fonte primaria)
-    try {
-      const dbUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          fullName: true,
-          isActive: true,
-          lastLoginAt: true
-        }
-      })
-
-      if (dbUser && dbUser.isActive) {
-        // Database Prisma è la fonte di verità
-        const authenticatedUser: AuthenticatedUser = {
-          id: dbUser.id,
-          email: dbUser.email,
-          role: dbUser.role,
-          fullName: dbUser.fullName || undefined,
-          isActive: dbUser.isActive,
-          lastLoginAt: dbUser.lastLoginAt || undefined
-        }
-
-        // STEP 2: Sincronizza metadata Supabase se diversi (background)
-        const metadataRole = validateRole(user.user_metadata?.role)
-        if (metadataRole !== dbUser.role) {
-          // Sync asincrono in background
-          syncRoleToSupabase(user.id, dbUser.role).catch(console.error)
-        }
-
-        return authenticatedUser
-      }
-    } catch (dbError) {
-      console.warn('[AUTH] Database non disponibile, usando fallback metadata:', dbError)
-    }
-
-    // STEP 3: Fallback ai metadata Supabase
+    // Estrai dati direttamente dai metadata Supabase
     const role = validateRole(user.user_metadata?.role)
-    const fallbackUser: AuthenticatedUser = {
+    const isActive = user.user_metadata?.isActive !== false // Default true se non specificato
+
+    return {
       id: user.id,
       email: user.email || '',
       role: role,
       fullName: user.user_metadata?.full_name,
-      isActive: true,
+      isActive: isActive,
       lastLoginAt: user.last_sign_in_at ? new Date(user.last_sign_in_at) : undefined
     }
-
-    // STEP 4: Tenta sincronizzazione verso Prisma (background)
-    syncUserToPrisma(user).catch(console.error)
-
-    return fallbackUser
 
   } catch (error) {
     console.error('Error getting authenticated user:', error)
     return null
+  }
+}
+
+// 🔄 UTILITY: Aggiorna metadata Supabase (per isActive, role, etc.)
+export async function updateUserMetadata(userId: string, metadata: Partial<{
+  role: UserRole
+  isActive: boolean
+  full_name: string
+}>): Promise<boolean> {
+  try {
+    const supabase = await createSupabaseAdminClient()
+    
+    const { error } = await supabase.auth.admin.updateUserById(userId, {
+      user_metadata: metadata
+    })
+
+    if (error) {
+      console.error('[UPDATE] Errore aggiornamento metadata:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('[UPDATE] Errore aggiornamento metadata:', error)
+    return false
   }
 }
 
@@ -205,7 +120,7 @@ export async function verifyAdminAccess(requiredPermission?: Permission): Promis
   }
 
   // Controllo se l'utente è attivo
-  if (user.isActive === false) {
+  if (!user.isActive) {
     return {
       user,
       hasAccess: false,

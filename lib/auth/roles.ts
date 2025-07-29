@@ -1,7 +1,5 @@
-import { UserRole } from '@/lib/generated/prisma'
-
-// Costanti per i ruoli
-export const ROLES = UserRole
+import { UserRole, ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from './types'
+import type { Permission } from './types'
 
 // 🔒 VALIDAZIONE SICURA DEI RUOLI
 export function validateRole(role: unknown): UserRole {
@@ -62,20 +60,6 @@ export function hasMinimumRole(userRole?: UserRole | null, minimumRole?: UserRol
   if (!userRole || !minimumRole) return false
   return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[minimumRole]
 }
-
-// Tipo per i permessi
-export type Permission = 
-  | 'read_services'
-  | 'write_services'
-  | 'delete_services'
-  | 'read_bookings'
-  | 'write_bookings'
-  | 'delete_bookings'
-  | 'read_users'
-  | 'write_users'
-  | 'delete_users'
-  | 'admin_dashboard'
-  | 'system_settings'
 
 // Mappa dei permessi per ruolo
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = { //record è un oggetto con chiave UserRole e valore Permission[]
@@ -138,16 +122,5 @@ export function canChangeRole(
   return { allowed: true }
 }
 
-// Etichette leggibili per i ruoli
-export const ROLE_LABELS: Record<UserRole, string> = {
-  [UserRole.CUSTOMER]: 'Cliente',
-  [UserRole.ADMIN]: 'Amministratore',
-  [UserRole.SUPER_ADMIN]: 'Super Amministratore'
-}
-
-// Descrizioni dettagliate dei ruoli
-export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
-  [UserRole.CUSTOMER]: 'Può visualizzare servizi e effettuare prenotazioni',
-  [UserRole.ADMIN]: 'Può gestire servizi, prenotazioni e accedere al pannello admin',
-  [UserRole.SUPER_ADMIN]: 'Accesso completo al sistema, inclusa gestione utenti e impostazioni'
-} 
+// 🔄 Re-export delle costanti per convenienza (manteniamo solo queste)
+export { ROLE_LABELS, ROLE_DESCRIPTIONS } //perché sono usati nel componente AdminSidebar nel frontend

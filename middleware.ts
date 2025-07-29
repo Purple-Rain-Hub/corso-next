@@ -1,19 +1,18 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { UserRole } from '@/lib/generated/prisma'
+import { UserRole } from '@/lib/auth/types'
 
-//TODO: importare le funzioni da roles.ts
-// Funzione per validare i ruoli 
+// 🔒 Funzione edge-compatible per verificare admin (manteniamo locale per performance edge)
+function isAdmin(role: UserRole): boolean {
+  return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN
+}
+
+// 🔒 Funzione edge-compatible per validare ruoli (manteniamo locale per edge runtime)
 function validateRole(role: unknown): UserRole {
   if (typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)) {
     return role as UserRole
   }
   return UserRole.CUSTOMER
-}
-
-// Funzione per verificare se l'utente è admin
-function isAdminRole(role: UserRole): boolean {
-  return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN
 }
 
 export async function middleware(request: NextRequest) {
@@ -59,10 +58,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url)
     }
 
-    // Validazione ruolo admin
+    // Validazione ruolo admin con controllo isActive
     const userRole = validateRole(user.user_metadata?.role)
-    if (!isAdminRole(userRole)) {
-      // Non è admin, redirect alla dashboard con messaggio di errore
+    const isActive = user.user_metadata?.isActive !== false
+    
+    if (!isAdmin(userRole) || !isActive) {
+      // Non è admin o account disattivato, redirect alla dashboard con messaggio di errore
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       url.searchParams.set('error', 'access_denied') //parametro per la dashboard
@@ -80,7 +81,9 @@ export async function middleware(request: NextRequest) {
     }
 
     const userRole = validateRole(user.user_metadata?.role)
-    if (!isAdminRole(userRole)) {
+    const isActive = user.user_metadata?.isActive !== false
+    
+    if (!isAdmin(userRole) || !isActive) {
       return NextResponse.json(
         { error: 'Permessi amministratore richiesti', code: 'FORBIDDEN' },
         { status: 403 }
