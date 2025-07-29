@@ -1,23 +1,13 @@
-// 🎯 Tipi centralizzati per evitare duplicazioni
-import type { 
-  Service as PrismaService, 
-  Booking as PrismaBooking, 
-  CartItem as PrismaCartItem 
+// 🎯 AGGREGATORE BUSINESS - Tipi per componenti e logica business
+
+// Re-export tipi database (Prisma)
+export type {
+  Service,
+  Booking,
+  CartItem,
 } from '@/lib/generated/prisma'
 
-// Tipi del database (da Prisma) - ri-esportati
-export type Service = PrismaService
-
-// Tipi con relazioni incluse (per frontend)
-export type CartItem = PrismaCartItem & {
-  service: PrismaService
-}
-
-export type Booking = PrismaBooking & {
-  service: PrismaService
-}
-
-// Tipi per la validazione degli input (da Zod)
+// Re-export tipi validazione (Zod)
 export type { 
   CartItemInput, 
   BookingInput, 
