@@ -83,16 +83,4 @@ export function useAdminAuth(): UseAdminAuthReturn {
   }
 
   return authState
-}
-
-// Hook semplificato per verificare solo se è admin
-export function useIsAdmin() {
-  const { isAdmin, loading } = useAdminAuth()
-  return { isAdmin, loading }
-}
-
-// Hook per verificare permessi specifici
-export function usePermission(permission: Permission) {
-  const { hasPermission, loading } = useAdminAuth()
-  return { hasPermission: hasPermission(permission), loading }
 } 
