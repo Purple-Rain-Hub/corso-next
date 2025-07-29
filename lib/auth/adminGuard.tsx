@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useAdminAuth } from './useAdminAuth'
-import { Permission } from './roles'
+import type { Permission } from '@/lib/auth/types'
 
 interface AdminGuardProps {
   children: React.ReactNode
@@ -93,7 +93,7 @@ export function AdminGuard({
   loadingComponent,
   showAccessDenied = true
 }: AdminGuardProps) {
-  const { isAdmin, isLoading, hasPermission: checkPermission, error, refreshAdminUser, clearError } = useAdminAuth()
+  const { isAdmin, loading, hasPermission, error } = useAdminAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [hasRedirected, setHasRedirected] = useState(false)
@@ -110,16 +110,15 @@ export function AdminGuard({
 
   // 🔄 GESTIONE REDIRECT con prevenzione loop
   useEffect(() => {
-    if (!isLoading && !isAdmin && !hasRedirected && !error) {
+    if (!loading && !isAdmin && !hasRedirected && !error) {
       setHasRedirected(true)
       router.replace(fallbackUrl) //.replace è un metodo che sostituisce la pagina corrente con la nuova pagina, mentre .push aggiunge la nuova pagina alla cronologia del browser
     }
-  }, [isAdmin, isLoading, router, fallbackUrl, hasRedirected, error])
+  }, [isAdmin, loading, router, fallbackUrl, hasRedirected, error])
 
-  // 🔄 RETRY AUTOMATICO per errori temporanei
-  const handleRetry = async () => {
-    clearError()
-    await refreshAdminUser()
+  // 🔄 RETRY AUTOMATICO per errori temporanei (ora ricarica la pagina)
+  const handleRetry = () => {
+    window.location.reload()
   }
 
   const handleRedirect = () => {
@@ -127,7 +126,7 @@ export function AdminGuard({
   }
 
   // Mostra loading durante la verifica
-  if (isLoading) {
+  if (loading) {
     return loadingComponent || <DefaultLoadingComponent />
   }
 
@@ -159,7 +158,7 @@ export function AdminGuard({
   }
 
   // Se è richiesto un permesso specifico, verificalo
-  if (requiredPermission && !checkPermission(requiredPermission)) {
+  if (requiredPermission && !hasPermission(requiredPermission)) {
     if (!showAccessDenied) return null
     return (
       <AccessDeniedComponent 

@@ -1,4 +1,4 @@
-import { UserRole, ROLES, ROLE_LABELS, ROLE_DESCRIPTIONS } from './types'
+import { UserRole, ROLE_LABELS, ROLE_DESCRIPTIONS } from './types'
 import type { Permission } from './types'
 
 // 🔒 VALIDAZIONE SICURA DEI RUOLI
