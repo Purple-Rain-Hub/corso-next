@@ -107,7 +107,7 @@ export default function AdminDashboard() {
         // Simuliamo il caricamento delle statistiche
         // In futuro, questa sarà una chiamata API reale
         await new Promise(resolve => setTimeout(resolve, 1000))
-        
+        //TODO: rimuovere mockStats e sostituirlo con una chiamata API reale
         const mockStats: DashboardStats = {
           totalServices: 6,
           totalBookings: 47,

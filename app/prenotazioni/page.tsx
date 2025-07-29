@@ -61,7 +61,7 @@ export default function PrenotazioniPage() {
     }
 
     loadServices()
-  }, [showToast])
+  }, [])
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service)

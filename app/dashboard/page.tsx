@@ -25,7 +25,7 @@ export default function Dashboard() {
       url.searchParams.delete('error')
       window.history.replaceState({}, '', url.toString())
     }
-  }, [searchParams, showToast])
+  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
