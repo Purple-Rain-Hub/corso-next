@@ -2,7 +2,8 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { UserRole } from '@/lib/generated/prisma'
 
-// Funzione per validare i ruoli
+//TODO: importare le funzioni da roles.ts
+// Funzione per validare i ruoli 
 function validateRole(role: unknown): UserRole {
   if (typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)) {
     return role as UserRole
