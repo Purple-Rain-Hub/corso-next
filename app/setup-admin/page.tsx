@@ -1,4 +1,5 @@
 'use client'
+//pagina per assegnare ruoli admin agli utenti (solo per testing)
 
 import { useState, useEffect } from 'react'
 import { UserRole } from '@/lib/auth/types'
