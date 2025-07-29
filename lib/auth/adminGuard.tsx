@@ -93,7 +93,7 @@ export function AdminGuard({
   loadingComponent,
   showAccessDenied = true
 }: AdminGuardProps) {
-  const { isAdmin, loading, hasPermission, error } = useAdminAuth()
+  const { isAdmin, loading, hasPermission, error, isAuthenticated, user } = useAdminAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [hasRedirected, setHasRedirected] = useState(false)
@@ -108,13 +108,27 @@ export function AdminGuard({
     }
   }, [searchParams])
 
-  // 🔄 GESTIONE REDIRECT con prevenzione loop
+  // 🔄 GESTIONE REDIRECT con logica robusta anti-race condition
   useEffect(() => {
-    if (!loading && !isAdmin && !hasRedirected && !error) {
+    // Condizioni per redirect sicuro:
+    // 1. Non in loading
+    // 2. Utente autenticato (per evitare redirect durante il caricamento iniziale)
+    // 3. User object processato (non null)
+    // 4. Non è admin
+    // 5. Non abbiamo già fatto redirect
+    // 6. Nessun errore
+    const shouldRedirect = !loading && 
+                          isAuthenticated && 
+                          user !== null && 
+                          !isAdmin && 
+                          !hasRedirected && 
+                          !error
+    
+    if (shouldRedirect) {
       setHasRedirected(true)
-      router.replace(fallbackUrl) //.replace è un metodo che sostituisce la pagina corrente con la nuova pagina, mentre .push aggiunge la nuova pagina alla cronologia del browser
+      router.replace(fallbackUrl)
     }
-  }, [isAdmin, loading, router, fallbackUrl, hasRedirected, error])
+  }, [isAdmin, loading, isAuthenticated, user, router, fallbackUrl, hasRedirected, error])
 
   // 🔄 RETRY AUTOMATICO per errori temporanei (ora ricarica la pagina)
   const handleRetry = () => {
@@ -152,8 +166,8 @@ export function AdminGuard({
     )
   }
 
-  // Se non è admin, non mostrare nulla (il redirect è già attivo)
-  if (!isAdmin) {
+  // Se l'utente è processato e non è admin, non mostrare nulla (il redirect è già attivo)
+  if (isAuthenticated && user !== null && !isAdmin) {
     return null
   }
 
