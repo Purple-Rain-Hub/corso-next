@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/lib/auth/context'
+import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { useCart } from '@/lib/context/CartContext'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -8,6 +9,7 @@ import { useState } from 'react'
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth()
+  const { isAdmin, loading: adminLoading } = useAdminAuth()
   const { getItemCount } = useCart()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
@@ -48,11 +50,11 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <span className="text-2xl">🐾</span>
-              <span className="text-xl font-bold text-blue-600">PetShop</span>
+              <span className="text-xl font-bold text-gray-900">PetShop</span>
             </Link>
           </div>
 
-          {/* Menu Desktop - nascosto su mobile */}
+          {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-8">
             <Link 
               href="/"
@@ -84,19 +86,31 @@ export default function Navbar() {
                 Dashboard
               </Link>
             )}
+            {/* 🔒 LINK ADMIN: Solo per utenti admin autorizzati */}
+            {!adminLoading && isAdmin && (
+              <Link 
+                href="/admin"
+                onClick={(e) => handleLinkClick('/admin', e)}
+                className={getLinkClasses('/admin', "px-3 py-2 text-sm font-medium rounded-md bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700")}
+              >
+                <span className="flex items-center space-x-1">
+                  <span>🔧</span>
+                  <span>Admin</span>
+                </span>
+              </Link>
+            )}
           </div>
 
-          {/* Sezione destra: Carrello e Autenticazione */}
+          {/* Azioni Utente - Desktop */}
           <div className="hidden md:flex items-center space-x-4">
-            
-            {/* Carrello */}
+            {/* Link al carrello */}
             <Link 
               href="/carrello"
               onClick={(e) => handleLinkClick('/carrello', e)}
-              className={`relative p-2 rounded-md ${
-                isActive('/carrello')
-                  ? 'bg-blue-50 text-blue-600 cursor-default'
-                  : 'text-gray-600 hover:text-blue-600 transition-colors'
+              className={`relative p-2 rounded-lg transition-colors ${
+                isActive('/carrello') 
+                  ? 'text-blue-600 bg-blue-50 cursor-default' 
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
               }`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,6 +235,30 @@ export default function Navbar() {
                   className={getLinkClasses('/dashboard', "block px-3 py-2 text-base font-medium rounded-md")}
                 >
                   Dashboard
+                </Link>
+              )}
+              
+              {/* 🔒 LINK ADMIN MOBILE: Solo per utenti admin autorizzati */}
+              {!adminLoading && isAdmin && (
+                <Link 
+                  href="/admin"
+                  onClick={(e) => {
+                    if (!isActive('/admin')) {
+                      closeMobileMenu()
+                    } else {
+                      e.preventDefault()
+                    }
+                  }}
+                  className={`block px-3 py-2 text-base font-medium rounded-md ${
+                    isActive('/admin')
+                      ? 'bg-blue-50 text-blue-600 cursor-default'
+                      : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                  }`}
+                >
+                  <span className="flex items-center space-x-2">
+                    <span>🔧</span>
+                    <span>Pannello Admin</span>
+                  </span>
                 </Link>
               )}
               
