@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useCart } from '@/lib/context/CartContext'
+import { useToast } from '@/app/components/ui/ToastProvider'
 import { Service } from '@/lib/types'
 import ServiceCard from '../components/ServiceCard'
 import CartSidebar from '../components/CartSidebar'
@@ -32,8 +33,10 @@ export default function PrenotazioniPage() {
   const [loading, setLoading] = useState(true)
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [showCart, setShowCart] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   const { getItemCount } = useCart()
+  const { showToast } = useToast()
 
   // Carica servizi dal database
   useEffect(() => {
@@ -43,16 +46,22 @@ export default function PrenotazioniPage() {
         if (response.ok) {
           const data = await response.json()
           setServices(data)
+          setLoadError(false)
+        } else {
+          setLoadError(true)
+          showToast('error', 'Errore nel caricamento dei servizi. Riprova più tardi.')
         }
       } catch (error) {
         console.error('Errore nel caricamento dei servizi:', error)
+        setLoadError(true)
+        showToast('error', 'Impossibile caricare i servizi. Controlla la connessione.')
       } finally {
         setLoading(false)
       }
     }
 
     loadServices()
-  }, [])
+  }, [showToast])
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service)
@@ -127,12 +136,27 @@ export default function PrenotazioniPage() {
               <h2 className="text-2xl font-bold text-gray-900">Servizi Disponibili ({numero_servizi_premium})</h2>
             </div>
             
-            {services.length === 0 ? (
+            {services.length === 0 && !loadError ? (
               <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Icons.Pet />
                 </div>
                 <p className="text-gray-500 text-lg">Nessun servizio disponibile al momento</p>
+              </div>
+            ) : loadError ? (
+              <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-red-500 text-lg mb-4">Errore nel caricamento dei servizi</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                >
+                  Ricarica la pagina
+                </button>
               </div>
             ) : (
               <div className="grid gap-6">

@@ -2,19 +2,21 @@
 
 import { useCart } from '@/lib/context/CartContext'
 import { useAuth } from '@/lib/auth/context'
+import { useToast } from '@/app/components/ui/ToastProvider'
 import Link from 'next/link'
 import { useState } from 'react'
 
 export default function CarrelloPage() {
   const { cartItems, loading, removeFromCart, getTotalPrice, checkout, isAuthenticated } = useCart()
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [checkoutSuccess, setCheckoutSuccess] = useState(false)
 
   // 🔒 Gestione checkout sicuro
   const handleCheckout = async () => {
     if (!isAuthenticated) {
-      alert('Devi essere autenticato per effettuare il checkout.')
+      showToast('error', 'Devi essere autenticato per effettuare il checkout.')
       return
     }
 
@@ -26,10 +28,10 @@ export default function CarrelloPage() {
       })
       
       setCheckoutSuccess(true)
-      alert(`Checkout completato! ${result?.message || 'Prenotazioni create con successo.'}`)
+      showToast('success', `Checkout completato! ${result?.message || 'Prenotazioni create con successo.'}`, 6000)
     } catch (error) {
       console.error('Errore nel checkout:', error)
-      alert('Errore durante il checkout. Riprova.')
+      showToast('error', 'Errore durante il checkout. Riprova.')
     } finally {
       setIsCheckingOut(false)
     }
