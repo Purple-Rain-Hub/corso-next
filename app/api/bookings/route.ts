@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       where: {
         userId: user.id,
         serviceId: validatedData.serviceId,
-        bookingDate: validatedData.bookingDate,
+        bookingDate: new Date(validatedData.bookingDate), // Converte stringa in Date
         bookingTime: validatedData.bookingTime
       }
     })
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         petName: validatedData.petName,
         petType: validatedData.petType,
         serviceId: validatedData.serviceId,
-        bookingDate: validatedData.bookingDate,
+        bookingDate: new Date(validatedData.bookingDate), // Converte stringa in Date
         bookingTime: validatedData.bookingTime,
         notes: validatedData.notes || null
       },
