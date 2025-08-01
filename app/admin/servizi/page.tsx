@@ -129,13 +129,18 @@ export default function ServicesPage() {
         </div>
         
         {hasPermission('write_services') && (
-          <Link
-            href="/admin/servizi/nuovo"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+          //<Link
+           // href="/admin/servizi/nuovo"
+            //className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+          //>
+            <div
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 opacity-50 cursor-not-allowed"
+            title="Funzionalità temporaneamente disabilitata"
           >
             <span>➕</span>
             <span>Nuovo Servizio</span>
-          </Link>
+            </div>
+          //</Link>
         )}
       </div>
 
@@ -185,13 +190,13 @@ export default function ServicesPage() {
               {search ? 'Prova a modificare i filtri di ricerca' : 'Inizia creando il tuo primo servizio'}
             </p>
             {hasPermission('write_services') && !search && (
-              <Link
-                href="/admin/servizi/nuovo"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              <div
+                className="inline-flex items-center px-4 py-2 bg-gray-400 text-white rounded-lg opacity-50 cursor-not-allowed"
+                title="Funzionalità temporaneamente disabilitata"
               >
                 <span className="mr-2">➕</span>
                 Crea Primo Servizio
-              </Link>
+              </div>
             )}
           </div>
         ) : (

@@ -37,12 +37,6 @@ export function AdminHeader() {
 
           {/* Right side - User menu */}
           <div className="flex items-center space-x-4">
-            {/* Notifications (placeholder) */}
-            <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-              <span className="text-lg">🔔</span>
-              {/* Badge for notifications */}
-              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-            </button>
 
             {/* User menu */}
             <div className="relative">
@@ -97,6 +91,7 @@ export function AdminHeader() {
                   </button>
 
                   <button
+                    disabled={true}
                     onClick={() => {
                       setShowUserMenu(false)
                       router.push('/admin/impostazioni')

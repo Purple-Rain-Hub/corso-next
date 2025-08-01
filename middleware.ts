@@ -48,7 +48,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 🔒 PROTEZIONE ROUTE ADMIN
+  // 🔒 PROTEZIONE ROUTE ADMIN (controlli di base)
+  // AdminGuard si occuperà dei permessi granulari e UX
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
       // Non autenticato, redirect al login
@@ -66,7 +67,7 @@ export async function middleware(request: NextRequest) {
       // Non è admin o account disattivato, redirect alla dashboard con messaggio di errore
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
-      url.searchParams.set('error', 'access_denied') //parametro per la dashboard
+      url.searchParams.set('error', 'access_denied') //parametro per AdminGuard
       return NextResponse.redirect(url)
     }
   }

@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import { withAdminAuth, createSuccessResponse, createErrorResponse } from '@/lib/auth/serverAuth'
-import { PrismaClient } from '@/lib/generated/prisma'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 // GET /api/admin/services - Lista tutti i servizi
 export const GET = withAdminAuth(async (req: NextRequest) => {
@@ -52,8 +50,6 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
   } catch (error) {
     console.error('Error fetching services:', error)
     return createErrorResponse('Errore nel caricamento dei servizi', 'FETCH_ERROR', 500)
-  } finally {
-    await prisma.$disconnect()
   }
 }, 'read_services')
 
@@ -95,7 +91,5 @@ export const POST = withAdminAuth(async (req: NextRequest) => {
   } catch (error) {
     console.error('Error creating service:', error)
     return createErrorResponse('Errore nella creazione del servizio', 'CREATE_ERROR', 500)
-  } finally {
-    await prisma.$disconnect()
   }
 }, 'write_services') 

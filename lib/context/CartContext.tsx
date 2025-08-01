@@ -196,7 +196,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + item.service.price, 0)
+    return cartItems.reduce((total, item) => total + (item as any).service.price, 0) //Casting da risolvere
   }
 
   const getItemCount = () => {

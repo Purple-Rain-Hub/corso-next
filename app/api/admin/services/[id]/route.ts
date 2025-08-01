@@ -1,9 +1,7 @@
 import { NextRequest } from 'next/server'
 import { getAuthenticatedUser, createSuccessResponse, createErrorResponse } from '@/lib/auth/serverAuth'
 import { hasPermission } from '@/lib/auth/roles'
-import { PrismaClient } from '@/lib/generated/prisma'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 interface RouteParams {
   params: { id: string }
@@ -57,8 +55,6 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Error fetching service:', error)
     return createErrorResponse('Errore nel caricamento del servizio', 'FETCH_ERROR', 500)
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -132,8 +128,6 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Error updating service:', error)
     return createErrorResponse('Errore nell\'aggiornamento del servizio', 'UPDATE_ERROR', 500)
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -194,7 +188,5 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error('Error deleting service:', error)
     return createErrorResponse('Errore nell\'eliminazione del servizio', 'DELETE_ERROR', 500)
-  } finally {
-    await prisma.$disconnect()
   }
 } 
