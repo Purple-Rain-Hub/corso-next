@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { checkoutSchema, validateInput } from '@/lib/validation/schemas'
 import type { CheckoutInput } from '@/lib/types'
 
 // POST: Converti carrello in prenotazioni (solo per utenti autenticati)
@@ -20,17 +19,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
-    const validation = validateInput(checkoutSchema, body)
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error },
-        { status: 400 }
-      )
-    }
-
-    const { customerInfo }: CheckoutInput = validation.data
+    // Validazione base del body
+    const { customerInfo }: CheckoutInput = body
 
     // 🔒 OTTENGO SOLO GLI ELEMENTI DEL CARRELLO DELL'UTENTE AUTENTICATO
     // Uso userId invece di sessionId per chiarezza

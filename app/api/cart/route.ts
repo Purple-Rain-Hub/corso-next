@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { cartItemSchema, queryParamsSchema, validateInput } from '@/lib/validation/schemas'
 import type { CartItemInput, QueryParams } from '@/lib/types'
 
 // GET: Ottieni elementi del carrello per l'utente autenticato
@@ -57,20 +56,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
-    const validation = validateInput(cartItemSchema, {
-      ...body,
-      bookingDate: body.bookingDate // Zod gestirà la conversione da stringa a Date
-    })
-
-    if (!validation.success) {
+    // Validazione base dei dati richiesti
+    if (!body.serviceId || !body.petName || !body.petType || !body.bookingDate || !body.bookingTime) {
       return NextResponse.json(
-        { error: validation.error },
+        { error: 'Dati mancanti per aggiungere al carrello' },
         { status: 400 }
       )
     }
 
-    const validatedData: CartItemInput = validation.data
+    const validatedData: CartItemInput = body
 
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({
@@ -89,7 +83,7 @@ export async function POST(request: NextRequest) {
       where: {
         userId: user.id,
         serviceId: validatedData.serviceId,
-        bookingDate: validatedData.bookingDate,
+        bookingDate: new Date(validatedData.bookingDate), // Converte stringa in Date
         bookingTime: validatedData.bookingTime
       }
     })
@@ -108,7 +102,7 @@ export async function POST(request: NextRequest) {
         serviceId: validatedData.serviceId,
         petName: validatedData.petName,
         petType: validatedData.petType,
-        bookingDate: validatedData.bookingDate,
+        bookingDate: new Date(validatedData.bookingDate), // Converte stringa in Date
         bookingTime: validatedData.bookingTime,
         customerName: validatedData.customerName || user.email || null,
         customerEmail: validatedData.customerEmail || user.email || null
@@ -145,17 +139,15 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const rawId = searchParams.get('id')
 
-    // 🛡️ VALIDAZIONE ROBUSTA DELL'ID
-    const validation = validateInput(queryParamsSchema, { id: rawId })
-
-    if (!validation.success) {
+    // Validazione base dell'ID
+    if (!rawId || isNaN(Number(rawId))) {
       return NextResponse.json(
-        { error: validation.error },
+        { error: 'ID non valido' },
         { status: 400 }
       )
     }
 
-    const { id }: QueryParams = validation.data
+    const id = Number(rawId)
 
     // 🔒 VERIFICA CHE L'ELEMENTO APPARTENGA ALL'UTENTE
     const cartItem = await prisma.cartItem.findUnique({

@@ -102,7 +102,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         await refreshCart()
       } else {
-        const errorData = await response.json().catch(() => ({}))
+        const errorData = await response.json().catch(() => ({})) 
         throw new Error(errorData.error || 'Errore nell\'aggiunta al carrello')
       }
     } catch (error) {

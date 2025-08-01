@@ -7,7 +7,7 @@ export type {
   CartItem,
 } from '@/lib/generated/prisma'
 
-// Re-export tipi validazione (Zod)
+// Re-export tipi validazione
 export type { 
   CartItemInput, 
   BookingInput, 

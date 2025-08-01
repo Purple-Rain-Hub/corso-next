@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
-import { bookingSchema, validateInput } from '@/lib/validation/schemas'
 import type { BookingInput } from '@/lib/types'
 
 // GET: Ottieni solo le prenotazioni dell'utente autenticato
@@ -52,17 +51,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // 🛡️ VALIDAZIONE ROBUSTA CON ZOD
-    const validation = validateInput(bookingSchema, body)
-
-    if (!validation.success) {
+    // Validazione base dei dati richiesti
+    if (!body.customerName || !body.customerEmail || !body.petName || !body.petType || 
+        !body.serviceId || !body.bookingDate || !body.bookingTime) {
       return NextResponse.json(
-        { error: validation.error },
+        { error: 'Dati mancanti per la prenotazione' },
         { status: 400 }
       )
     }
 
-    const validatedData: BookingInput = validation.data
+    const validatedData: BookingInput = body
 
     // Verifica che il servizio esista
     const service = await prisma.service.findUnique({
