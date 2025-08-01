@@ -3,85 +3,88 @@
 import { useState } from 'react'
 import { useAuth } from '@/lib/auth/context'
 import Link from 'next/link'
+import { signupSchema, type SignupInput } from '@/lib/validation/schemas'
 
 export default function SignUpPage() {
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [formData, setFormData] = useState<SignupInput>({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState<Partial<SignupInput>>({})
   const [success, setSuccess] = useState(false)
-  const [emailError, setEmailError] = useState('')
-  const [checkingEmail, setCheckingEmail] = useState(false)
   const { signUp } = useAuth()
 
-  // Funzione per validare l'email in tempo reale
-  const validateEmail = (emailValue: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (emailValue && !emailRegex.test(emailValue)) {
-      setEmailError('Formato email non valido')
-      return false
+  // Validazione real-time per campo singolo
+  const validateField = (field: keyof SignupInput, value: string) => {
+    // Per confirmPassword dobbiamo validare entrambi i campi password
+    if (field === 'confirmPassword') {
+      const result = signupSchema.pick({ password: true, confirmPassword: true }).safeParse({ 
+        password: formData.password,
+        confirmPassword: value 
+      })
+      
+      if (!result.success) {
+        const fieldError = result.error.issues.find(issue => 
+          issue.path.includes('confirmPassword')
+        )
+        setErrors(prev => ({ ...prev, confirmPassword: fieldError?.message || '' }))
+      } else {
+        setErrors(prev => ({ ...prev, confirmPassword: '' }))
+      }
+    } else {
+      const result = signupSchema.pick({ [field]: true }).safeParse({ [field]: value })
+      
+      if (!result.success) {
+        const fieldError = result.error.issues.find(issue => issue.path[0] === field)
+        setErrors(prev => ({ ...prev, [field]: fieldError?.message || '' }))
+      } else {
+        setErrors(prev => ({ ...prev, [field]: '' }))
+      }
     }
-    setEmailError('')
-    return true
   }
 
-  // Gestisce il cambiamento dell'email
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const emailValue = e.target.value
-    setEmail(emailValue)
-    setError('') // Resetta eventuali errori globali precedenti
+  const handleChange = (field: keyof SignupInput) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData(prev => ({ ...prev, [field]: value }))
     
-    // Valida il formato email in tempo reale per una migliore UX
-    validateEmail(emailValue)
+    // Validazione real-time solo se l'utente ha già interagito con il campo
+    if (formData[field] !== '') {
+      validateField(field, value)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    setEmailError('')
+    setErrors({})
 
-    // Validazione nome
-    if (fullName.trim().length < 2) {
-      setError('Il nome deve essere di almeno 2 caratteri')
-      setLoading(false)
-      return
-    }
-
-    // Validazione caratteri nome (stessa regex del nameSchema)
-    if (!/^[a-zA-ZÀ-ÿ\s'-]+$/.test(fullName.trim())) {
-      setError('Il nome può contenere solo lettere, spazi, apostrofi e trattini')
-      setLoading(false)
-      return
-    }
-
-    // Validazione email
-    if (!validateEmail(email)) {
-      setLoading(false)
-      return
-    }
-
-    // Validazione password
-    if (password !== confirmPassword) {
-      setError('Le password non coincidono')
-      setLoading(false)
-      return
-    }
-
-    if (password.length < 6) {
-      setError('La password deve essere di almeno 6 caratteri')
+    // Validazione completa del form con Zod
+    const result = signupSchema.safeParse(formData)
+    
+    if (!result.success) {
+      const fieldErrors: Partial<SignupInput> = {}
+      result.error.issues.forEach(issue => {
+        const field = issue.path[0] as keyof SignupInput
+        if (issue.path.includes('confirmPassword')) {
+          fieldErrors.confirmPassword = issue.message
+        } else {
+          fieldErrors[field] = issue.message
+        }
+      })
+      setErrors(fieldErrors)
       setLoading(false)
       return
     }
 
     try {
-      await signUp(email, password, fullName.trim())
+      // result.data contiene i dati validati e trasformati (es. fullName con trim)
+      await signUp(result.data.email, result.data.password, result.data.fullName)
       setSuccess(true)
     } catch (error: any) {
-      // Il context ora gestisce già i messaggi di errore per email duplicate
-      setError(error.message || 'Errore durante la registrazione')
+      setErrors({ email: error.message || 'Errore durante la registrazione' })
     } finally {
       setLoading(false)
     }
@@ -123,12 +126,6 @@ export default function SignUpPage() {
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          
           <div className="space-y-4">
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
@@ -137,13 +134,19 @@ export default function SignUpPage() {
               <input
                 id="fullName"
                 type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                value={formData.fullName}
+                onChange={handleChange('fullName')}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none ${
+                  errors.fullName 
+                    ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="Mario Rossi"
                 maxLength={50}
               />
+              {errors.fullName && (
+                <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>
+              )}
               <p className="mt-1 text-xs text-gray-500">
                 Solo lettere, spazi, apostrofi e trattini
               </p>
@@ -156,18 +159,17 @@ export default function SignUpPage() {
               <input
                 id="email"
                 type="email"
-                required
-                value={email}
-                onChange={handleEmailChange}
+                value={formData.email}
+                onChange={handleChange('email')}
                 className={`mt-1 appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none ${
-                  emailError 
+                  errors.email 
                     ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
                     : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
                 placeholder="la-tua-email@esempio.com"
               />
-              {emailError && (
-                <p className="mt-1 text-xs text-red-500">{emailError}</p>
+              {errors.email && (
+                <p className="mt-1 text-xs text-red-500">{errors.email}</p>
               )}
             </div>
             
@@ -178,12 +180,18 @@ export default function SignUpPage() {
               <input
                 id="password"
                 type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                value={formData.password}
+                onChange={handleChange('password')}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none ${
+                  errors.password 
+                    ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="Minimo 6 caratteri"
               />
+              {errors.password && (
+                <p className="mt-1 text-xs text-red-500">{errors.password}</p>
+              )}
             </div>
             
             <div>
@@ -193,12 +201,18 @@ export default function SignUpPage() {
               <input
                 id="confirmPassword"
                 type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                value={formData.confirmPassword}
+                onChange={handleChange('confirmPassword')}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 rounded-md focus:outline-none ${
+                  errors.confirmPassword 
+                    ? 'border-red-400 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                }`}
                 placeholder="Ripeti la password"
               />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-xs text-red-500">{errors.confirmPassword}</p>
+              )}
             </div>
           </div>
 
