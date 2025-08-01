@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useToast } from '@/app/components/ui/ToastProvider'
-import { Booking } from '@/lib/types'
+import { BookingWithService } from '@/lib/types'
 
 export default function GestionePrenotazioni() {
-  const [bookings, setBookings] = useState<Booking[]>([])
+  const [bookings, setBookings] = useState<BookingWithService[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   

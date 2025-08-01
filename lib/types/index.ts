@@ -1,11 +1,18 @@
 // 🎯 AGGREGATORE BUSINESS - Tipi per componenti e logica business
 
-// Re-export tipi database (Prisma)
+// Import and re-export tipi database (Prisma)
+import type { Service, Booking, CartItem } from '@/lib/generated/prisma'
+
 export type {
   Service,
   Booking,
   CartItem,
-} from '@/lib/generated/prisma'
+}
+
+// Tipo esteso per Booking con Service incluso (molto più pulito!)
+export type BookingWithService = Booking & {
+  service: Service
+}
 
 // Re-export tipi validazione
 export type { 
