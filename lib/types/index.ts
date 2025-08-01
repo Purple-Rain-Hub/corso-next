@@ -9,8 +9,12 @@ export type {
   CartItem,
 }
 
-// Tipo esteso per Booking con Service incluso (molto più pulito!)
+// Tipi estesi con relazioni incluse (pattern efficiente!)
 export type BookingWithService = Booking & {
+  service: Service
+}
+
+export type CartItemWithService = CartItem & {
   service: Service
 }
 

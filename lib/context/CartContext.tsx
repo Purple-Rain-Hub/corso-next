@@ -3,10 +3,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth/context'
 import { useRouter } from 'next/navigation'
-import { CartItem, CartItemInput } from '@/lib/types'
+import { CartItemWithService, CartItemInput } from '@/lib/types'
 
 interface CartContextType {
-  cartItems: CartItem[]
+  cartItems: CartItemWithService[]
   loading: boolean
   isAuthenticated: boolean
   addToCart: (item: CartItemInput) => Promise<void>
@@ -21,7 +21,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartItems, setCartItems] = useState<CartItemWithService[]>([])
   const [loading, setLoading] = useState(false)
   const { user, loading: authLoading } = useAuth() // 🔗 Integrazione con autenticazione
   const router = useRouter()
@@ -196,7 +196,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }
 
   const getTotalPrice = () => {
-    return cartItems.reduce((total, item) => total + (item as any).service.price, 0) //Casting da risolvere
+    return cartItems.reduce((total, item) => total + item.service.price, 0)
   }
 
   const getItemCount = () => {
