@@ -39,16 +39,22 @@ export const signupSchema = z.object({
 
 // 📝 Schema per la prenotazione
 export const bookingSchema = z.object({
-  customerName: z.string().min(1, 'Nome cliente richiesto').max(20, 'Nome cliente non può superare i 20 caratteri').regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Il nome può contenere solo lettere, spazi, apostrofi e trattini').transform(val => val.trim()),
+  customerName: z.string().min(1, 'Nome cliente richiesto').max(50, 'Nome cliente non può superare i 50 caratteri').regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Il nome può contenere solo lettere, spazi, apostrofi e trattini').transform(val => val.trim()),
   customerEmail: z.string().min(1, 'Email cliente richiesta').email('Formato email non valido'),
-  petName: z.string().min(1, 'Nome animale richiesto').max(20, 'Nome animale non può superare i 20 caratteri').regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Il nome può contenere solo lettere, spazi, apostrofi e trattini').transform(val => val.trim()),
+  petName: z.string().min(1, 'Nome animale richiesto').max(50, 'Nome animale non può superare i 50 caratteri').regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Il nome può contenere solo lettere, spazi, apostrofi e trattini').transform(val => val.trim()),
   petType: z.enum(['Cane', 'Gatto', 'Coniglio', 'Uccello', 'Criceto', 'Pesce', 'Tartaruga', 'Furetto', 'Altro']),
-  bookingDate: z.date().refine(date => date >= new Date(), {
-    message: 'La data deve essere odierna o futura'
+  bookingDate: z.date().refine(date => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setHours(0, 0, 0, 0)
+    return date >= tomorrow
+  }, {
+    message: 'La prenotazione deve essere effettuata con almeno un giorno di anticipo'
   }),
-  bookingTime: z.string()
-    .regex(/^(08|09|10|11):(00|30)$|^1[4-7]:(00|30)$|^18:00$/, 
-      'Orario non valido. Orari consentiti: 08:00-11:30, 14:00-18:00'),
+  bookingTime: z.string().regex(
+    /^(08|09|10|11):(00|30)$|^1[4-7]:(00|30)$|^18:00$/,
+    'Orario non valido. Orari disponibili: 08:00-11:30, 14:00-18:00'
+  ),
   notes: z.string().optional()
 })
 
