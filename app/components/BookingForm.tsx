@@ -5,6 +5,7 @@ import { Service } from '@/lib/types'
 import { useCart } from '@/lib/context/CartContext'
 import { useAuth } from '@/lib/auth/context'
 import { useToast } from './ui/ToastProvider'
+import { bookingSchema, type BookingInput } from '@/lib/validation/schemas'
 
 // Icone semplici con SVG
 const Icons = {
@@ -29,23 +30,65 @@ interface BookingFormProps {
 export default function BookingForm({ service, onClose, onSuccess }: BookingFormProps) {
   const { addToCart, isAuthenticated } = useCart()
   const { showToast } = useToast()
+  const [errors, setErrors] = useState<Partial<Record<keyof BookingInput, string>>>({})
 
   // Form data
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BookingInput>({
     petName: '',
-    petType: '',
-    bookingDate: '',
+    petType: 'Cane',
+    bookingDate: new Date(),
     bookingTime: '',
     customerName: '',
     customerEmail: ''
   })
 
+  const handleChange = (field: keyof BookingInput) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => { //usato currying
+    let value: any = e.target.value
+    
+    // Gestione speciale per la data
+    if (field === 'bookingDate') {
+      value = new Date(e.target.value)
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: value }))
+
+    // Validazione real-time solo se l'utente ha già interagito con il campo
+    if (formData[field] !== '') {
+      validateField(field, value)
+    }
+  }
+
+  // Validazione real-time per campo singolo
+  const validateField = (field: keyof BookingInput, value: any) => {
+    try {
+      bookingSchema.pick({ [field]: true }).parse({ [field]: value })
+      setErrors(prev => ({ ...prev, [field]: '' }))
+    } catch (error: any) {
+      const fieldError = error.issues?.find((issue: any) => issue.path[0] === field)
+      setErrors(prev => ({ ...prev, [field]: fieldError?.message || 'Errore di validazione' }))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+    setErrors({})
+
     // 🔒 Controllo autenticazione con messaggio più chiaro
     if (!isAuthenticated) {
       showToast('error', 'Devi essere autenticato per aggiungere servizi al carrello. Effettua l\'accesso per continuare.')
+      return
+    }
+
+    // Validazione completa del form
+    try {
+      bookingSchema.parse(formData)
+    } catch (error: any) {
+      const fieldErrors: Partial<Record<keyof BookingInput, string>> = {}
+      error.issues?.forEach((issue: any) => {
+        const field = issue.path[0] as keyof BookingInput
+        fieldErrors[field] = issue.message
+      })
+      setErrors(fieldErrors)
       return
     }
 
@@ -63,8 +106,8 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
       // Reset form
       setFormData({
         petName: '',
-        petType: '',
-        bookingDate: '',
+        petType: 'Cane',
+        bookingDate: new Date(),
         bookingTime: '',
         customerName: '',
         customerEmail: ''
@@ -99,7 +142,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <Icons.X />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -110,13 +153,14 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
               required
               maxLength={50}
               value={formData.petName}
-              onChange={(e) => setFormData({...formData, petName: e.target.value})}
+              onChange={handleChange('petName')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
               placeholder="Es. Buddy"
             />
             <p className="text-xs text-gray-500 mt-1">
               📝 Max 50 caratteri - Solo lettere, spazi, apostrofi e trattini
             </p>
+            {errors.petName && <p className="text-xs text-red-500 mt-1">{errors.petName}</p>}
           </div>
 
           <div>
@@ -126,7 +170,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <select
               required
               value={formData.petType}
-              onChange={(e) => setFormData({...formData, petType: e.target.value})}
+              onChange={handleChange('petType')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
             >
               <option value="" className="text-gray-500">Seleziona tipo</option>
@@ -140,6 +184,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
               <option value="Furetto" className="text-gray-900">🦫 Furetto</option>
               <option value="Altro" className="text-gray-900">🐾 Altro</option>
             </select>
+            {errors.petType && <p className="text-xs text-red-500 mt-1">{errors.petType}</p>}
           </div>
 
           <div>
@@ -154,13 +199,14 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
                 tomorrow.setDate(tomorrow.getDate() + 1)
                 return tomorrow.toISOString().split('T')[0]
               })()}
-              value={formData.bookingDate}
-              onChange={(e) => setFormData({...formData, bookingDate: e.target.value})}
+              value={formData.bookingDate.toISOString().split('T')[0]}
+              onChange={handleChange('bookingDate')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
             />
             <p className="text-xs text-gray-500 mt-1">
               ⚠️ Le prenotazioni devono essere effettuate con almeno un giorno di anticipo
             </p>
+            {errors.bookingDate && <p className="text-xs text-red-500 mt-1">{errors.bookingDate}</p>}
           </div>
 
           <div>
@@ -170,7 +216,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <select
               required
               value={formData.bookingTime}
-              onChange={(e) => setFormData({...formData, bookingTime: e.target.value})}
+              onChange={handleChange('bookingTime')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900"
             >
               <option value="" className="text-gray-500">Seleziona orario</option>
@@ -195,6 +241,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <p className="text-xs text-gray-500 mt-1">
               🕐 Orari di apertura: 08:00 - 18:00 (pausa pranzo: 12:00 - 14:00)
             </p>
+            {errors.bookingTime && <p className="text-xs text-red-500 mt-1">{errors.bookingTime}</p>}
           </div>
 
           <div>
@@ -204,10 +251,11 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <input
               type="text"
               value={formData.customerName}
-              onChange={(e) => setFormData({...formData, customerName: e.target.value})}
+              onChange={handleChange('customerName')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
               placeholder="Il tuo nome"
             />
+            {errors.customerName && <p className="text-xs text-red-500 mt-1">{errors.customerName}</p>}
           </div>
 
           <div>
@@ -217,10 +265,11 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
             <input
               type="email"
               value={formData.customerEmail}
-              onChange={(e) => setFormData({...formData, customerEmail: e.target.value})}
+              onChange={handleChange('customerEmail')}
               className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
               placeholder="tua@email.com"
             />
+            {errors.customerEmail && <p className="text-xs text-red-500 mt-1">{errors.customerEmail}</p>}
           </div>
 
           <div className="flex gap-3 pt-6">
