@@ -68,12 +68,6 @@ export default function Dashboard() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Azioni Rapide</h3>
             <div className="space-y-3">
               <a
-                href="/prodotti"
-                className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-              >
-                🛍️ Sfoglia Prodotti
-              </a>
-              <a
                 href="/prenotazioni/gestione"
                 className="block w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors"
               >

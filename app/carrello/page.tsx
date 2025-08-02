@@ -71,7 +71,7 @@ export default function CarrelloPage() {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Lista dei prodotti nel carrello */}
+            {/* Lista dei servizi nel carrello */}
             <div className="bg-white rounded-lg shadow-sm">
               {cartItems.map((item) => (
                 <div key={item.id} className="p-6 border-b border-gray-200 last:border-b-0">
