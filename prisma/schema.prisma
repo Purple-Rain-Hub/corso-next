@@ -63,6 +63,7 @@ model CartItem {
   bookingTime String
   customerName String
   customerEmail String
+  notes      String?
   createdAt  DateTime @default(now())
   
   // Relazioni

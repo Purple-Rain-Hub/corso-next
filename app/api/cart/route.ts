@@ -104,8 +104,9 @@ export async function POST(request: NextRequest) {
         petType: validatedData.petType,
         bookingDate: new Date(validatedData.bookingDate), // Converte stringa in Date
         bookingTime: validatedData.bookingTime,
-        customerName: validatedData.customerName || user.email || null,
-        customerEmail: validatedData.customerEmail || user.email || null
+        customerName: validatedData.customerName || user.email || '',
+        customerEmail: validatedData.customerEmail || user.email || '',
+        notes: validatedData.notes || null
       },
       include: {
         service: true

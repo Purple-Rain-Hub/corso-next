@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Service } from '@/lib/types'
 import { useCart } from '@/lib/context/CartContext'
 import { useAuth } from '@/lib/auth/context'
@@ -39,10 +39,11 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
     bookingDate: new Date(),
     bookingTime: '',
     customerName: '',
-    customerEmail: ''
+    customerEmail: '',
+    notes: ''
   })
 
-  const handleChange = (field: keyof BookingInput) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => { //usato currying
+  const handleChange = (field: keyof BookingInput) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement>) => { //usato currying
     let value: any = e.target.value
     
     // Gestione speciale per la data
@@ -96,11 +97,12 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
       await addToCart({
         serviceId: service.id,
         petName: formData.petName,
-        petType: formData.petType,
+        petType: formData.petType as any, // Il tipo viene validato dal backend
         bookingDate: new Date(formData.bookingDate),
         bookingTime: formData.bookingTime,
         customerName: formData.customerName,
-        customerEmail: formData.customerEmail
+        customerEmail: formData.customerEmail,
+        notes: formData.notes
       })
 
       // Reset form
@@ -110,7 +112,8 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
         bookingDate: new Date(),
         bookingTime: '',
         customerName: '',
-        customerEmail: ''
+        customerEmail: '',
+        notes: ''
       })
 
       showToast('success', 'Servizio aggiunto al carrello!')
@@ -124,7 +127,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform animate-scale-in">
+      <div className="bg-white rounded-2xl max-w-md w-full h-[800px] overflow-y-scroll p-8 shadow-2xl transform animate-scale-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg">
@@ -270,6 +273,20 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
               placeholder="tua@email.com"
             />
             {errors.customerEmail && <p className="text-xs text-red-500 mt-1">{errors.customerEmail}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Note (opzionale)
+            </label>
+            <textarea
+              value={formData.notes || ''}
+              onChange={handleChange('notes')}
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500 resize-none"
+              placeholder="Aggiungi note per la prenotazione..."
+              rows={3}
+            />
+            {errors.notes && <p className="text-xs text-red-500 mt-1">{errors.notes}</p>}
           </div>
 
           <div className="flex gap-3 pt-6">

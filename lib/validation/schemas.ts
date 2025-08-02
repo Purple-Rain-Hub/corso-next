@@ -84,6 +84,7 @@ export interface CartItemInput {
   bookingTime: string
   customerName?: string
   customerEmail?: string
+  notes?: string
 }
 
 // 💳 Tipo per informazioni cliente

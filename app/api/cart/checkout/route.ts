@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
             bookingDate: item.bookingDate,
             bookingTime: item.bookingTime,
               status: 'confirmed',
-              notes: 'Prenotazione creata tramite checkout online' // 🔒 Rimossa esposizione ID utente
+              notes: item.notes || 'Prenotazione creata tramite checkout online'
           },
           include: {
             service: true
