@@ -3,12 +3,8 @@ import { getAuthenticatedUser, createSuccessResponse, createErrorResponse } from
 import { hasPermission } from '@/lib/auth/roles'
 import { prisma } from '@/lib/prisma'
 
-interface RouteParams {
-  params: { id: string }
-}
-
 // 🔒 PROTETTO: GET /api/admin/services/[id] - Ottieni singolo servizio
-export async function GET(req: NextRequest, { params }: RouteParams) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 🔒 VERIFICA AUTENTICAZIONE E AUTORIZZAZIONE
     const user = await getAuthenticatedUser()
@@ -20,7 +16,8 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse('Permessi insufficienti', 'FORBIDDEN', 403)
     }
 
-    const serviceId = parseInt(params.id)
+    const resolvedParams = await params
+    const serviceId = parseInt(resolvedParams.id)
 
     if (isNaN(serviceId)) {
       return createErrorResponse('ID servizio non valido', 'INVALID_ID', 400)
@@ -59,7 +56,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 }
 
 // 🔒 PROTETTO: PUT /api/admin/services/[id] - Aggiorna servizio  
-export async function PUT(req: NextRequest, { params }: RouteParams) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 🔒 VERIFICA AUTENTICAZIONE E AUTORIZZAZIONE
     const user = await getAuthenticatedUser()
@@ -71,7 +68,8 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse('Permessi insufficienti', 'FORBIDDEN', 403)
     }
 
-    const serviceId = parseInt(params.id)
+    const resolvedParams = await params
+    const serviceId = parseInt(resolvedParams.id)
 
     if (isNaN(serviceId)) {
       return createErrorResponse('ID servizio non valido', 'INVALID_ID', 400)
@@ -132,7 +130,7 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
 }
 
 // 🔒 PROTETTO: DELETE /api/admin/services/[id] - Elimina servizio
-export async function DELETE(req: NextRequest, { params }: RouteParams) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // 🔒 VERIFICA AUTENTICAZIONE E AUTORIZZAZIONE
     const user = await getAuthenticatedUser()
@@ -144,7 +142,8 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
       return createErrorResponse('Permessi insufficienti', 'FORBIDDEN', 403)
     }
 
-    const serviceId = parseInt(params.id)
+    const resolvedParams = await params
+    const serviceId = parseInt(resolvedParams.id)
 
     if (isNaN(serviceId)) {
       return createErrorResponse('ID servizio non valido', 'INVALID_ID', 400)
