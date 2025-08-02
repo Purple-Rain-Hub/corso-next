@@ -239,15 +239,6 @@ export default function AdminDashboard() {
             />
           )}
           
-          {hasPermission('system_settings') && (
-            <QuickAction
-              title="Impostazioni"
-              description="Configura il sistema"
-              href="/admin/impostazioni"
-              icon="⚙️"
-              color="orange"
-            />
-          )}
         </div>
       </div>
 

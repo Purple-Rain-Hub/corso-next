@@ -23,7 +23,6 @@ export default function ServicesPage() {
   const { showToast } = useToast()
   const [services, setServices] = useState<ServiceWithCounts[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({
     page: 1,
@@ -44,8 +43,7 @@ export default function ServicesPage() {
       setLoading(true)
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '10',
-        ...(search && { search })
+        limit: '10'
       })
 
       const response = await fetch(`/api/admin/services?${params}`)
@@ -181,20 +179,7 @@ export default function ServicesPage() {
   // Effect per caricare servizi
   useEffect(() => {
     fetchServices()
-  }, [page, search])
-
-  // Effect per ricerca con debounce
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (page !== 1) {
-        setPage(1)
-      } else {
-        fetchServices()
-      }
-    }, 300)
-
-    return () => clearTimeout(timer)
-  }, [search])
+  }, [page])
 
   return (
     <div className="space-y-6">
@@ -216,37 +201,6 @@ export default function ServicesPage() {
         )}
       </div>
 
-      {/* Filtri e Ricerca */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-              Cerca servizi
-            </label>
-            <input
-              type="text"
-              id="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Nome o descrizione del servizio..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div className="flex items-end">
-            <button
-              onClick={() => {
-                setSearch('')
-                setPage(1)
-              }}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              Cancella Filtri
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Tabella Servizi */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (
@@ -259,9 +213,9 @@ export default function ServicesPage() {
             <div className="text-4xl mb-4">🔍</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Nessun servizio trovato</h3>
             <p className="text-gray-600 mb-4">
-              {search ? 'Prova a modificare i filtri di ricerca' : 'Inizia creando il tuo primo servizio'}
+              Inizia creando il tuo primo servizio
             </p>
-            {hasPermission('write_services') && !search && (
+            {hasPermission('write_services') && (
               <button
                 onClick={openCreateModal}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
