@@ -29,12 +29,6 @@ const navigationLinks = [
     href: '/admin/utenti',
     icon: '👥',
     permission: 'read_users' as const
-  },
-  {
-    name: 'Impostazioni',
-    href: '/admin/impostazioni',
-    icon: '⚙️',
-    permission: 'system_settings' as const
   }
 ]
 

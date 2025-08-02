@@ -324,13 +324,6 @@ export default function ServicesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-2">
-                          {/* TODO: aggiungere la route per la visualizzazione del servizio */}
-                          <Link
-                            href={`/admin/servizi/${service.id}`} 
-                            className="text-blue-600 hover:text-blue-900 transition-colors"
-                          >
-                            Visualizza
-                          </Link>
                           {hasPermission('write_services') && (
                             <button
                               onClick={() => openEditModal(service)}

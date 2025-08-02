@@ -90,18 +90,6 @@ export function AdminHeader() {
                     Il Mio Profilo
                   </button>
 
-                  <button
-                    disabled={true}
-                    onClick={() => {
-                      setShowUserMenu(false)
-                      router.push('/admin/impostazioni')
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                  >
-                    <span className="mr-3">⚙️</span>
-                    Impostazioni
-                  </button>
-
                   <div className="border-t border-gray-100 my-1"></div>
 
                   <button
