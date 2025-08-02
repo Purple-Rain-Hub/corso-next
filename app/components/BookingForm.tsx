@@ -96,7 +96,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
       await addToCart({
         serviceId: service.id,
         petName: formData.petName,
-        petType: formData.petType as any, // Il tipo viene validato dal backend
+        petType: formData.petType,
         bookingDate: new Date(formData.bookingDate),
         bookingTime: formData.bookingTime,
         customerName: formData.customerName,
