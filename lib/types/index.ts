@@ -18,6 +18,14 @@ export type CartItemWithService = CartItem & {
   service: Service
 }
 
+// Tipo Service con conteggi per l'admin
+export type ServiceWithCounts = Service & {
+  _count: {
+    bookings: number
+    cartItems?: number
+  }
+}
+
 // Re-export tipi validazione
 export type { 
   CartItemInput, 

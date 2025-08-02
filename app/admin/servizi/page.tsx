@@ -4,23 +4,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { useToast } from '@/app/components/ui/ToastProvider'
-
-// Tipi
-interface Service {
-  id: number
-  name: string
-  description: string
-  price: number
-  duration: number
-  createdAt: string
-  updatedAt: string
-  _count: {
-    bookings: number
-  }
-}
+import EditServiceModal from './components/EditServiceModal'
+import type { ServiceWithCounts } from '@/lib/types'
 
 interface ServicesResponse {
-  services: Service[]
+  services: ServiceWithCounts[]
   pagination: {
     page: number
     limit: number
@@ -32,7 +20,7 @@ interface ServicesResponse {
 export default function ServicesPage() {
   const { hasPermission } = useAdminAuth()
   const { showToast } = useToast()
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<ServiceWithCounts[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -43,6 +31,10 @@ export default function ServicesPage() {
     pages: 0
   })
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
+  
+  // Stati per la modale di modifica
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editingService, setEditingService] = useState<ServiceWithCounts | null>(null)
 
   // Carica servizi
   const fetchServices = async () => {
@@ -98,6 +90,49 @@ export default function ServicesPage() {
       showToast('error', 'Errore nell\'eliminazione del servizio')
     } finally {
       setDeleteLoading(null)
+    }
+  }
+
+  // Funzioni per la modifica
+  const openEditModal = (service: ServiceWithCounts) => {
+    setEditingService(service)
+    setEditModalOpen(true)
+  }
+
+  const closeEditModal = () => {
+    setEditModalOpen(false)
+    setEditingService(null)
+  }
+
+  const updateService = async (serviceId: number, data: {
+    name: string
+    description: string
+    price: number
+    duration: number
+  }) => {
+    try {
+      const response = await fetch(`/api/admin/services/${serviceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+
+      const responseData = await response.json()
+
+      if (responseData.success) {
+        showToast('success', 'Servizio aggiornato con successo')
+        // Ricarica la lista
+        fetchServices()
+      } else {
+        showToast('error', `Errore: ${responseData.error}`)
+        throw new Error(responseData.error)
+      }
+    } catch (error) {
+      console.error('Error updating service:', error)
+      showToast('error', 'Errore nell\'aggiornamento del servizio')
+      throw error
     }
   }
 
@@ -259,14 +294,13 @@ export default function ServicesPage() {
                           >
                             Visualizza
                           </Link>
-                          {/* TODO: aggiungere la route per la modifica del servizio */}
                           {hasPermission('write_services') && (
-                            <Link
-                              href={`/admin/servizi/${service.id}/modifica`}
+                            <button
+                              onClick={() => openEditModal(service)}
                               className="text-yellow-600 hover:text-yellow-900 transition-colors"
                             >
                               Modifica
-                            </Link>
+                            </button>
                           )}
                           
                           {hasPermission('delete_services') && (
@@ -325,6 +359,14 @@ export default function ServicesPage() {
           </>
         )}
       </div>
+
+      {/* Modale di Modifica */}
+      <EditServiceModal
+        isOpen={editModalOpen}
+        service={editingService}
+        onClose={closeEditModal}
+        onUpdate={updateService}
+      />
     </div>
   )
 } 
