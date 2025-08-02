@@ -74,10 +74,16 @@ export default function Dashboard() {
                 🛍️ Sfoglia Prodotti
               </a>
               <a
-                href="/prenotazioni"
+                href="/prenotazioni/gestione"
                 className="block w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors"
               >
-                📅 Le Tue Prenotazioni
+                📅 Gestisci Prenotazioni
+              </a>
+              <a
+                href="/prenotazioni"
+                className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                ➕ Nuova Prenotazione
               </a>
               <a
                 href="/carrello"

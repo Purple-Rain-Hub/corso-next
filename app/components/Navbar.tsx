@@ -22,6 +22,10 @@ export default function Navbar() {
     if (path === '/') {
       return pathname === '/'
     }
+    // Gestione speciale per evitare che /prenotazioni sia attivo quando siamo in /prenotazioni/gestione
+    if (path === '/prenotazioni' && pathname.startsWith('/prenotazioni/')) {
+      return pathname === '/prenotazioni'
+    }
     return pathname.startsWith(path)
   }
 
@@ -77,6 +81,15 @@ export default function Navbar() {
             >
               Prenotazioni
             </Link>
+            {user && (
+              <Link 
+                href="/prenotazioni/gestione"
+                onClick={(e) => handleLinkClick('/prenotazioni/gestione', e)}
+                className={getLinkClasses('/prenotazioni/gestione', "px-3 py-2 text-sm font-medium rounded-md")}
+              >
+                Le Mie Prenotazioni
+              </Link>
+            )}
             {user && (
               <Link 
                 href="/dashboard"
@@ -222,6 +235,21 @@ export default function Navbar() {
               >
                 Prenotazioni
               </Link>
+              {user && (
+                <Link 
+                  href="/prenotazioni/gestione"
+                  onClick={(e) => {
+                    if (!isActive('/prenotazioni/gestione')) {
+                      closeMobileMenu()
+                    } else {
+                      e.preventDefault()
+                    }
+                  }}
+                  className={getLinkClasses('/prenotazioni/gestione', "block px-3 py-2 text-base font-medium rounded-md")}
+                >
+                  Le Mie Prenotazioni
+                </Link>
+              )}
               {user && (
                 <Link 
                   href="/dashboard"

@@ -111,18 +111,29 @@ export default function PrenotazioniPage() {
                 <p className="text-sm text-gray-600">Servizi di qualità per i tuoi amici a quattro zampe</p>
               </div>
             </div>
-            <button
-              onClick={() => setShowCart(!showCart)}
-              className="relative bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
-            >
-              <Icons.ShoppingCart />
-              <span className="hidden sm:inline">Carrello</span>
-              {getItemCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-7 w-7 flex items-center justify-center font-bold animate-pulse">
-                  {getItemCount()}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center gap-3">
+              <a
+                href="/prenotazioni/gestione"
+                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span className="hidden sm:inline">Le Mie Prenotazioni</span>
+              </a>
+              <button
+                onClick={() => setShowCart(!showCart)}
+                className="relative bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 transform hover:scale-105"
+              >
+                <Icons.ShoppingCart />
+                <span className="hidden sm:inline">Carrello</span>
+                {getItemCount() > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full h-7 w-7 flex items-center justify-center font-bold animate-pulse">
+                    {getItemCount()}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </header>
