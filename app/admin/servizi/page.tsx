@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { useToast } from '@/app/components/ui/ToastProvider'
 import EditServiceModal from './components/EditServiceModal'
+import CreateServiceModal from './components/CreateServiceModal'
 import type { ServiceWithCounts } from '@/lib/types'
 
 interface ServicesResponse {
@@ -32,9 +33,10 @@ export default function ServicesPage() {
   })
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
   
-  // Stati per la modale di modifica
+  // Stati per le modali
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [editingService, setEditingService] = useState<ServiceWithCounts | null>(null)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
 
   // Carica servizi
   const fetchServices = async () => {
@@ -104,6 +106,14 @@ export default function ServicesPage() {
     setEditingService(null)
   }
 
+  const openCreateModal = () => {
+    setCreateModalOpen(true)
+  }
+
+  const closeCreateModal = () => {
+    setCreateModalOpen(false)
+  }
+
   const updateService = async (serviceId: number, data: {
     name: string
     description: string
@@ -136,6 +146,38 @@ export default function ServicesPage() {
     }
   }
 
+  const createService = async (data: {
+    name: string
+    description: string
+    price: number
+    duration: number
+  }) => {
+    try {
+      const response = await fetch('/api/admin/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+
+      const responseData = await response.json()
+
+      if (responseData.success) {
+        showToast('success', 'Servizio creato con successo')
+        // Ricarica la lista
+        fetchServices()
+      } else {
+        showToast('error', `Errore: ${responseData.error}`)
+        throw new Error(responseData.error)
+      }
+    } catch (error) {
+      console.error('Error creating service:', error)
+      showToast('error', 'Errore nella creazione del servizio')
+      throw error
+    }
+  }
+
   // Effect per caricare servizi
   useEffect(() => {
     fetchServices()
@@ -164,18 +206,13 @@ export default function ServicesPage() {
         </div>
         
         {hasPermission('write_services') && (
-          //<Link
-           // href="/admin/servizi/nuovo"
-            //className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-          //>
-            <div
-            className="bg-gray-400 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 opacity-50 cursor-not-allowed"
-            title="Funzionalità temporaneamente disabilitata"
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
           >
             <span>➕</span>
             <span>Nuovo Servizio</span>
-            </div>
-          //</Link>
+          </button>
         )}
       </div>
 
@@ -225,13 +262,13 @@ export default function ServicesPage() {
               {search ? 'Prova a modificare i filtri di ricerca' : 'Inizia creando il tuo primo servizio'}
             </p>
             {hasPermission('write_services') && !search && (
-              <div
-                className="inline-flex items-center px-4 py-2 bg-gray-400 text-white rounded-lg opacity-50 cursor-not-allowed"
-                title="Funzionalità temporaneamente disabilitata"
+              <button
+                onClick={openCreateModal}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <span className="mr-2">➕</span>
                 Crea Primo Servizio
-              </div>
+              </button>
             )}
           </div>
         ) : (
@@ -366,6 +403,13 @@ export default function ServicesPage() {
         service={editingService}
         onClose={closeEditModal}
         onUpdate={updateService}
+      />
+
+      {/* Modale di Creazione */}
+      <CreateServiceModal
+        isOpen={createModalOpen}
+        onClose={closeCreateModal}
+        onCreate={createService}
       />
     </div>
   )

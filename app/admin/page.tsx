@@ -209,11 +209,11 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Azioni Rapide</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {hasPermission('write_services') && (
+          {hasPermission('read_services') && (
             <QuickAction
-              title="Nuovo Servizio"
-              description="Aggiungi un nuovo servizio"
-              href="/admin/servizi/nuovo"
+              title="Gestisci Servizi"
+              description="Visualizza e gestisci servizi"
+              href="/admin/servizi"
               icon="➕"
               color="green"
             />
