@@ -3,6 +3,7 @@ import { AuthProvider } from '@/lib/auth/context'
 import { CartProvider } from '@/lib/context/CartContext'
 import { ToastProvider } from './components/ui/ToastProvider'
 import Navbar from './components/Navbar'
+import FloatingBookingButton from './components/FloatingBookingButton'
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,6 +24,7 @@ export default function RootLayout({
             <ToastProvider>
               <Navbar />
               {children}
+              <FloatingBookingButton />
             </ToastProvider>
           </CartProvider>
         </AuthProvider>
