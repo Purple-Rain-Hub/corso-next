@@ -11,12 +11,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Enum per i ruoli utente (mantenuto per compatibilità)
-enum UserRole {
-  CUSTOMER
-  ADMIN
-  SUPER_ADMIN
-}
+
 
 // Modello per i servizi prenotabili (ad esempio servizi del pet shop)
 model Service {
@@ -66,8 +61,8 @@ model CartItem {
   petType    String
   bookingDate DateTime
   bookingTime String
-  customerName String?
-  customerEmail String?
+  customerName String
+  customerEmail String
   createdAt  DateTime @default(now())
   
   // Relazioni
