@@ -7,6 +7,16 @@ import EditServiceModal from './components/EditServiceModal'
 import CreateServiceModal from './components/CreateServiceModal'
 import type { ServiceWithCounts } from '@/lib/types'
 
+interface ServicesResponse {
+  services: ServiceWithCounts[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
+}
+
 export default function ServicesPage() {
   const { hasPermission } = useAdminAuth()
   const { showToast } = useToast()

@@ -37,7 +37,7 @@ export default function BookingsPage() {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '10',
-        ...(statusFilter !== 'all' && { status: statusFilter })
+        ...(statusFilter !== 'all' && { status: statusFilter }) //se statusFilter non è all, aggiungi status: statusFilter
       })
 
       const response = await fetch(`/api/admin/bookings?${params}`)
