@@ -1,3 +1,4 @@
+// Tipi e enum per sistema di ruoli e autorizzazioni
 // Definizioni dei ruoli per compatibilità con middleware e edge runtime
 export enum UserRole {
   CUSTOMER = 'CUSTOMER',

@@ -1,3 +1,4 @@
+// Schemi di validazione Zod per form e input - gestisce validazione client e server
 import { z } from 'zod'
 
 // 🔐 Schema per il login
@@ -13,6 +14,7 @@ export const loginSchema = z.object({
 })
 
 // 📝 Schema per il signup
+// Validazione completa con regex per caratteri speciali e trim automatico
 export const signupSchema = z.object({
   fullName: z
     .string()
@@ -38,6 +40,7 @@ export const signupSchema = z.object({
 })
 
 // 📝 Schema per la prenotazione
+// Validazione completa con controlli business logic (orari, date, tipi animali)
 export const bookingSchema = z.object({
   customerName: z.string().min(1, 'Nome cliente richiesto').max(50, 'Nome cliente non può superare i 50 caratteri').regex(/^[a-zA-ZÀ-ÿ\s'-]+$/, 'Il nome può contenere solo lettere, spazi, apostrofi e trattini').transform(val => val.trim()),
   customerEmail: z.string().min(1, 'Email cliente richiesta').email('Formato email non valido'),

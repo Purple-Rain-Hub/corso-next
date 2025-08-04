@@ -1,3 +1,4 @@
+// API endpoint per gestione prenotazioni - GET/POST /api/bookings
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
@@ -13,6 +14,7 @@ export async function GET() {
 
   try {
     // 🔒 SICUREZZA: Mostra solo le prenotazioni dell'utente autenticato
+    // Previene accesso non autorizzato alle prenotazioni di altri utenti
     const bookings = await prisma.booking.findMany({
       where: {
         userId: user.id // Solo le MIE prenotazioni
@@ -36,6 +38,7 @@ export async function GET() {
 }
 
 // POST: Crea una nuova prenotazione per l'utente autenticato
+//todo: controllare se è necessario questo endpoint
 export async function POST(request: NextRequest) {
   try {
     // 🔒 CONTROLLO AUTENTICAZIONE
@@ -75,6 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 🔒 Controllo conflitti di prenotazione
+    // Previene prenotazioni duplicate per lo stesso utente, servizio, data e orario
     const existingBooking = await prisma.booking.findFirst({
       where: {
         userId: user.id,

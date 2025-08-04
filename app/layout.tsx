@@ -1,3 +1,4 @@
+// Layout principale dell'applicazione - configura provider e componenti globali
 import type { Metadata } from "next";
 import { AuthProvider } from '@/lib/auth/context'
 import { CartProvider } from '@/lib/context/CartContext'

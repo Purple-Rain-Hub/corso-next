@@ -129,7 +129,7 @@ export default function SignUpPage() {
           <div className="space-y-4">
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Nome Completo *
+                Nome Completo
               </label>
               <input
                 id="fullName"

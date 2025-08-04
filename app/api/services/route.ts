@@ -1,3 +1,4 @@
+// API endpoint per recupero servizi disponibili - GET /api/services
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 

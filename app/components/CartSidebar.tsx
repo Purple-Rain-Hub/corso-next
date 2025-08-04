@@ -1,3 +1,4 @@
+// Sidebar del carrello - gestisce visualizzazione e checkout degli elementi
 'use client'
 
 import { useCart } from '@/lib/context/CartContext'
@@ -45,6 +46,7 @@ export default function CartSidebar({ onClose }: CartSidebarProps) {
   const { cartItems, removeFromCart, getTotalPrice, getItemCount, checkout } = useCart()
   const { showToast } = useToast()
 
+  // Utility per formattazione orari e date
   const formatTime = (time: string) => {
     return time ? time.substring(0, 5) : '' //per togliere i secondi dall'orario
   }
@@ -53,6 +55,7 @@ export default function CartSidebar({ onClose }: CartSidebarProps) {
     return new Date(date).toLocaleDateString('it-IT') //per formattare la data in italiano
   }
 
+  // Gestione checkout con feedback utente
   const handleCheckout = async () => {
     try {
       const result = await checkout()

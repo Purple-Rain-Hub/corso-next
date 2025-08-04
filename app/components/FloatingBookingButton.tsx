@@ -1,3 +1,4 @@
+// Pulsante flottante per accesso rapido alle prenotazioni - visibile solo per utenti autenticati
 'use client'
 //questo è il pulsante che si trova in basso a destra e che porta alla pagina delle prenotazioni
 

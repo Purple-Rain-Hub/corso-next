@@ -1,3 +1,4 @@
+// Pagina principale - landing page con servizi e statistiche del petshop
 'use client'
 
 import Link from 'next/link'
@@ -84,8 +85,8 @@ export default function Home() {
           {/* Statistiche servizi */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center bg-white rounded-lg p-4 shadow-sm">
-              <div className="text-2xl font-bold text-blue-600">6</div>
-              <div className="text-sm text-gray-600">Servizi Disponibili</div>
+              <div className="text-2xl font-bold text-blue-600">💉</div>
+              <div className="text-sm text-gray-600">Vaccinazioni</div>
             </div>
             <div className="text-center bg-white rounded-lg p-4 shadow-sm">
               <div className="text-2xl font-bold text-green-600">✂️</div>

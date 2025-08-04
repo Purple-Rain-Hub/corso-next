@@ -1,3 +1,4 @@
+// Layout amministrativo - sidebar, header e protezione con AdminGuard
 'use client'
 
 import { AdminGuard } from '@/lib/auth/adminGuard'

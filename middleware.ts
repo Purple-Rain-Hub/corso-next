@@ -1,13 +1,16 @@
+// Middleware per autenticazione e autorizzazione - gestisce protezione route e redirect
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { UserRole } from '@/lib/auth/types'
 
 // 🔒 Funzione edge-compatible per verificare admin (manteniamo locale per performance edge)
+// Edge runtime non può importare moduli esterni, quindi duplichiamo la logica qui
 function isAdmin(role: UserRole): boolean {
   return role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN
 }
 
 // 🔒 Funzione edge-compatible per validare ruoli (manteniamo locale per edge runtime)
+// Validazione strict per prevenire injection di ruoli non validi
 function validateRole(role: unknown): UserRole {
   if (typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)) {
     return role as UserRole
@@ -43,6 +46,7 @@ export async function middleware(request: NextRequest) {
 
   // IMPORTANT: Avoid writing any logic between createServerClient and supabase.auth.getUser()
   // Un semplice errore può rendere il client inaccessibile ai tuoi utenti
+  // Questa chiamata deve essere immediata dopo la creazione del client
 
   const {
     data: { user },

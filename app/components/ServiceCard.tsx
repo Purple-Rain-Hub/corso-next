@@ -1,3 +1,4 @@
+// Card per visualizzazione servizi - mostra dettagli e permette prenotazione
 'use client'
 
 import { Service } from '@/lib/types'
@@ -36,7 +37,7 @@ export default function ServiceCard({ service, onSelect, index = 0 }: ServiceCar
   return (
     <div 
       className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 transform hover:-translate-y-1 border border-gray-100"
-      style={{animationDelay: `${index * 0.1}s`}}
+      style={{animationDelay: `${index * 0.1}s`}} // Animazione staggered per le card
     >
       <div className="flex justify-between items-start mb-6">
         <div className="flex-1">

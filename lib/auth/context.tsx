@@ -1,3 +1,4 @@
+// Context per autenticazione Supabase - gestisce stato utente e operazioni auth
 'use client'
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -20,8 +21,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
+  // Gestione stato autenticazione e listener per cambiamenti
   useEffect(() => {
-    // Ottieni la sessione iniziale
+    // Ottieni la sessione iniziale al mount del componente
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user ?? null)
@@ -30,7 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     getInitialSession()
 
-    // Ascolta i cambiamenti di autenticazione
+    // Ascolta i cambiamenti di autenticazione (login/logout)
+    // Aggiorna automaticamente lo stato quando cambia la sessione
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null)
@@ -84,7 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 🔧 RILEVAMENTO EMAIL GIÀ REGISTRATA
     // Supabase non restituisce errori espliciti per email duplicate ma 
-    // restituisce un utente con identities vuoto
+    // restituisce un utente con identities vuoto quando l'email esiste già
+    // Questo è un workaround per gestire il caso edge di Supabase
     if (data?.user && (!data.user.identities || data.user.identities.length === 0)) {
       throw new Error('Questa email è già registrata. Prova ad accedere o usa "Password dimenticata?" se hai perso le credenziali.')
     }

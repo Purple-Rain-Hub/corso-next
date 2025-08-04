@@ -1,3 +1,4 @@
+// Componente toast per notifiche - gestisce stili e auto-dismiss
 'use client'
 
 import { useEffect } from 'react'
@@ -10,6 +11,7 @@ interface ToastProps {
 }
 
 export default function Toast({ type, message, onClose, duration = 3000 }: ToastProps) {
+  // Auto-dismiss del toast dopo la durata specificata
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose()
@@ -18,6 +20,7 @@ export default function Toast({ type, message, onClose, duration = 3000 }: Toast
     return () => clearTimeout(timer)
   }, [onClose, duration])
 
+  // Stili dinamici basati sul tipo di toast
   const getToastStyles = () => {
     switch (type) {
       case 'success':

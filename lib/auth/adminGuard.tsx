@@ -1,4 +1,5 @@
 'use client'
+// Componente di guardia per l'accesso admin - gestisce redirect, retry, error e accesso negato
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'

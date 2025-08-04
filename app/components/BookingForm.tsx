@@ -1,9 +1,9 @@
+// Form per prenotazione servizi - gestisce validazione e aggiunta al carrello
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Service } from '@/lib/types'
 import { useCart } from '@/lib/context/CartContext'
-import { useAuth } from '@/lib/auth/context'
 import { useToast } from './ui/ToastProvider'
 import { bookingSchema, type BookingInput } from '@/lib/validation/schemas'
 
@@ -24,10 +24,9 @@ const Icons = {
 interface BookingFormProps {
   service: Service
   onClose: () => void
-  onSuccess?: () => void
 }
 
-export default function BookingForm({ service, onClose, onSuccess }: BookingFormProps) {
+export default function BookingForm({ service, onClose }: BookingFormProps) {
   const { addToCart, isAuthenticated } = useCart()
   const { showToast } = useToast()
   const [errors, setErrors] = useState<Partial<Record<keyof BookingInput, string>>>({})
@@ -43,10 +42,12 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
     notes: ''
   })
 
+  // Gestione cambiamenti form con validazione real-time
+  // Currying per creare handler specifici per ogni campo
   const handleChange = (field: keyof BookingInput) => (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement> | React.ChangeEvent<HTMLTextAreaElement>) => { //usato currying
     let value: any = e.target.value
     
-    // Gestione speciale per la data
+    // Gestione speciale per la data - conversione stringa in Date
     if (field === 'bookingDate') {
       value = new Date(e.target.value)
     }
@@ -54,6 +55,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
     setFormData(prev => ({ ...prev, [field]: value }))
 
     // Validazione real-time solo se l'utente ha già interagito con il campo
+    // Evita validazione prematura durante il primo input
     if (formData[field] !== '') {
       validateField(field, value)
     }
@@ -75,6 +77,7 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
     setErrors({})
 
     // 🔒 Controllo autenticazione con messaggio più chiaro
+    // Previene aggiunta al carrello per utenti non autenticati
     if (!isAuthenticated) {
       showToast('error', 'Devi essere autenticato per aggiungere servizi al carrello. Effettua l\'accesso per continuare.')
       return
@@ -118,7 +121,6 @@ export default function BookingForm({ service, onClose, onSuccess }: BookingForm
 
       showToast('success', 'Servizio aggiunto al carrello!')
       onClose()
-      onSuccess?.()
 
     } catch (error) {
       showToast('error', 'Errore nell\'aggiunta al carrello')

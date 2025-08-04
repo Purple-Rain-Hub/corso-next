@@ -11,7 +11,6 @@ interface CartContextType {
   isAuthenticated: boolean
   addToCart: (item: CartItemInput) => Promise<void>
   removeFromCart: (id: number) => Promise<void>
-  clearCart: () => Promise<void>
   refreshCart: () => Promise<void>
   checkout: (customerInfo?: { name: string; email: string }) => Promise<any>
   getTotalPrice: () => number
@@ -26,7 +25,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth() // 🔗 Integrazione con autenticazione
   const router = useRouter()
 
-  const isAuthenticated = !!user && !authLoading
+  const isAuthenticated = !!user && !authLoading //!! converte in booleano
 
   // 🔄 Carica il carrello quando l'utente è autenticato
   useEffect(() => {
@@ -62,7 +61,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const items = await response.json()
         setCartItems(items.map((item: any) => ({
           ...item,
-          bookingDate: new Date(item.bookingDate) // Necessario per trasformare la stringa in data
+          bookingDate: new  Date(item.bookingDate) // Necessario per trasformare la stringa in data
         })))
       } else {
         const errorData = await response.json().catch(() => ({}))
@@ -90,7 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         },
         body: JSON.stringify({
           ...item,
-          bookingDate: item.bookingDate.toISOString().split('T')[0]
+          bookingDate: item.bookingDate.toISOString().split('T')[0] //converte la data in stringa
         }),
       })
 
@@ -102,7 +101,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (response.ok) {
         await refreshCart()
       } else {
-        const errorData = await response.json().catch(() => ({})) 
+        const errorData = await response.json().catch(() => ({})) //catch gestisce l'errore se la risposta non è valida
         throw new Error(errorData.error || 'Errore nell\'aggiunta al carrello')
       }
     } catch (error) {
@@ -141,18 +140,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       throw error
     } finally {
       setLoading(false)
-    }
-  }
-
-  const clearCart = async () => {
-    if (!isAuthenticated){
-      handleAuthError('Devi essere autenticato per svuotare il carrello')
-      return
-    } 
-
-    // Rimuovi tutti gli elementi uno per uno
-    for (const item of cartItems) {
-      await removeFromCart(item.id)
     }
   }
 
@@ -206,10 +193,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value: CartContextType = {
     cartItems,
     loading,
-    isAuthenticated, // ✅ Nuovo campo
+    isAuthenticated,
     addToCart,
     removeFromCart,
-    clearCart,
     refreshCart,
     checkout,
     getTotalPrice,

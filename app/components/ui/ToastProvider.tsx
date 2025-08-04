@@ -1,3 +1,4 @@
+// Provider per gestione notifiche toast - gestisce stato e visualizzazione messaggi
 'use client'
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
@@ -23,6 +24,7 @@ interface ToastProviderProps {
 export function ToastProvider({ children }: ToastProviderProps) {
   const [toasts, setToasts] = useState<ToastType[]>([])
 
+  // Gestione aggiunta toast con ID univoco
   const showToast = useCallback((type: 'success' | 'error' | 'info', message: string, duration = 3000) => {
     const id = Math.random().toString(36).substr(2, 9)
     const newToast: ToastType = { id, type, message, duration }
@@ -42,7 +44,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
           <div 
             key={toast.id} 
             style={{ 
-              transform: `translateY(${index * 80}px)`,
+              transform: `translateY(${index * 80}px)`, // Posizionamento staggered dei toast
               transition: 'transform 0.3s ease-in-out'
             }}
           >

@@ -1,14 +1,17 @@
+// Utility per gestione ruoli e permessi - validazione e controllo accessi
 import { UserRole, ROLE_LABELS, ROLE_DESCRIPTIONS } from './types'
 import type { Permission } from './types'
 
 // 🔒 VALIDAZIONE SICURA DEI RUOLI
+// Previene injection di ruoli non validi e logging per sicurezza
 export function validateRole(role: unknown): UserRole {
-  // Validazione strict con whitelist
+  // Validazione strict con whitelist - solo ruoli definiti nell'enum
   if (typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)) {
     return role as UserRole
   }
   
   // Log tentativi di ruolo non valido per sicurezza
+  // Aiuta a rilevare tentativi di manipolazione
   if (role !== undefined && role !== null) {
     console.warn(`[SECURITY] Tentativo di assegnazione ruolo non valido: ${role}`)
   }
@@ -17,6 +20,7 @@ export function validateRole(role: unknown): UserRole {
 }
 
 // Verifica se un ruolo è valido
+// Type guard che restringe il tipo a UserRole se valido
 export function isValidRole(role: unknown): role is UserRole { 
   return typeof role === 'string' && Object.values(UserRole).includes(role as UserRole)
 } //role is UserRole rende la funzione di tipo boolean e "assegna" UserRole a role se true
@@ -35,6 +39,7 @@ export function isCustomer(role?: UserRole | null): boolean {
 }
 
 // Funzione per verificare se un utente ha un ruolo specifico
+// Implementa gerarchia dei ruoli: SUPER_ADMIN > ADMIN > CUSTOMER
 export function hasRole(userRole?: UserRole | null, requiredRole?: UserRole): boolean {
   if (!userRole || !requiredRole) return false
   

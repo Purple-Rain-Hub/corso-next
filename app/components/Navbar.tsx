@@ -1,3 +1,4 @@
+// Componente di navigazione principale - gestisce menu, autenticazione e link admin
 'use client'
 
 import { useAuth } from '@/lib/auth/context'
@@ -18,11 +19,13 @@ export default function Navbar() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
 
   // Funzione per determinare se un link è attivo
+  // Gestisce casi speciali come /prenotazioni vs /prenotazioni/gestione
   const isActive = (path: string) => {
     if (path === '/') {
       return pathname === '/'
     }
     // Gestione speciale per evitare che /prenotazioni sia attivo quando siamo in /prenotazioni/gestione
+    // Previene highlight errato del menu principale quando siamo in sottopagine
     if (path === '/prenotazioni' && pathname.startsWith('/prenotazioni/')) {
       return pathname === '/prenotazioni'
     }
@@ -38,6 +41,7 @@ export default function Navbar() {
   }
 
   // Funzione per gestire il click sui link attivi
+  // Previene navigazione inutile quando siamo già nella pagina corrente
   const handleLinkClick = (path: string, e: React.MouseEvent) => {
     if (isActive(path)) {
       e.preventDefault()

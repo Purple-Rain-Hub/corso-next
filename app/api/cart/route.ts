@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // Uso userId invece di sessionId per chiarezza
     const cartItems = await prisma.cartItem.findMany({
       where: {
-        userId: user.id // Uso userId invece di sessionId
+        userId: user.id
       },
       include: {
         service: true

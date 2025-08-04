@@ -1,3 +1,5 @@
+// Client Prisma per database - configurazione singleton per sviluppo e produzione
+
 import { PrismaClient } from './generated/prisma'
 
 const globalForPrisma = globalThis as unknown as {

@@ -1,9 +1,11 @@
+// Dashboard amministrativa - pannello di controllo con azioni rapide
 'use client'
 
 import Link from 'next/link'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 
 // Componente per le azioni rapide
+//todo: spostare in un file separato
 function QuickAction({ 
   title, 
   description, 

@@ -1,3 +1,4 @@
+// Pagina principale prenotazioni - catalogo servizi con form di prenotazione
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -73,7 +74,7 @@ export default function PrenotazioniPage() {
     setSelectedService(null)
   }
 
-  const numero_servizi_premium = useMemo(() => {
+  const numero_servizi_premium = useMemo(() => { //useMemo memorizza il risultato della funzione per evitare ricalcoli inutili
     return services.filter((service) => service.price > 20).length
   }, [services])
 

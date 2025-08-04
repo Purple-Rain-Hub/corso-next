@@ -1,22 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 import { useAdminAuth } from '@/lib/auth/useAdminAuth'
 import { useToast } from '@/app/components/ui/ToastProvider'
 import EditServiceModal from './components/EditServiceModal'
 import CreateServiceModal from './components/CreateServiceModal'
 import type { ServiceWithCounts } from '@/lib/types'
-
-interface ServicesResponse {
-  services: ServiceWithCounts[]
-  pagination: {
-    page: number
-    limit: number
-    total: number
-    pages: number
-  }
-}
 
 export default function ServicesPage() {
   const { hasPermission } = useAdminAuth()
