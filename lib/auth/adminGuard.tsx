@@ -98,16 +98,6 @@ export function AdminGuard({
   const searchParams = useSearchParams()
   const [hasRedirected, setHasRedirected] = useState(false)
 
-  // 🔍 GESTIONE ERRORI DAI PARAMETRI URL
-  //todo: controllare se è necessario questo useEffect
-  useEffect(() => { 
-    const urlError = searchParams.get('error')
-    if (urlError === 'access_denied') {
-      // Errore dal middleware - accesso negato
-      return // Mostra il componente di accesso negato
-    }
-  }, [searchParams])
-
   // 🔄 GESTIONE REDIRECT con logica robusta anti-race condition
   useEffect(() => {
     // Condizioni per redirect sicuro:
