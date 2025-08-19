@@ -1,161 +1,166 @@
-# 🚀 Configurazione PetShop con Supabase
+# 🚀 Setup Supabase per PetShop
 
-Questa guida ti aiuterà a configurare il progetto PetShop con l'autenticazione Supabase.
+Questa guida ti aiuterà con la **configurazione completa** di Supabase per il progetto PetShop.
 
 ## 📋 Prerequisiti
 
-- Node.js (versione 18 o superiore)
-- Un account Supabase gratuito
+- ✅ Node.js (versione 18 o superiore)
+- ✅ Account Supabase gratuito
+- ✅ Progetto Next.js già clonato
 
-## 🔧 Setup Iniziale
+## 🔧 Configurazione Base
 
-### 1. Crea un Progetto Supabase
-
+### 1. Crea Progetto Supabase
 1. Vai su [https://app.supabase.com](https://app.supabase.com)
-2. Clicca su "New Project"
-3. Scegli un nome per il progetto (es. "petshop")
-4. Imposta una password per il database
-5. Seleziona una regione vicina a te (es. "West EU" per l'Europa)
+2. Clicca "New Project"
+3. Scegli un nome (es. "petshop-app")
+4. Scegli una password forte per il database
+5. Seleziona la regione più vicina
 6. Clicca "Create new project"
 
 ### 2. Ottieni le Credenziali
+1. Nel dashboard, vai su **Settings** > **API**
+2. Copia:
+   - **Project URL** (es. `https://xyz.supabase.co`)
+   - **Anon Key** (chiave pubblica molto lunga)
 
-Una volta creato il progetto:
-
-1. Vai nella sezione **Settings** > **API**
-2. Copia i seguenti valori:
-   - **Project URL** (sarà simile a `https://xyz.supabase.co`)
-   - **Anon Public Key** (lunga stringa che inizia con "eyJ...")
-
-### 3. Configura le Variabili d'Ambiente
-
+### 3. Configura Variabili d'Ambiente
 Crea un file `.env.local` nella root del progetto:
 
 ```bash
-# Supabase Configuration
+# Database
+DATABASE_URL="file:./prisma/dev.db"
+
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://tuo-progetto-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tua-anon-key-molto-lunga
-
-# URL dell'app (per redirects)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-⚠️ **IMPORTANTE**: Sostituisci `tuo-progetto-id` e `tua-anon-key-molto-lunga` con i valori reali ottenuti dal tuo dashboard Supabase.
+## 🔐 Configurazione Autenticazione
 
-### 4. Configura l'Autenticazione in Supabase
+### 1. Impostazioni Site URL
+Nel dashboard Supabase, vai su **Authentication** > **Settings**:
+- **Site URL**: `http://localhost:3000`
+- **Redirect URLs**: 
+  - `http://localhost:3000/auth/callback`
+  - `http://localhost:3000/auth/reset-password`
 
-1. Nel dashboard Supabase, vai su **Authentication** > **Settings**
-2. Nella sezione **Site URL**, aggiungi: `http://localhost:3000`
-3. Nella sezione **Redirect URLs**, aggiungi:
-   - `http://localhost:3000/auth/callback`
-   - `http://localhost:3000/auth/reset-password`
+### 2. Abilita Provider Email
+In **Authentication** > **Providers**:
+- ✅ **Email**: Abilitato (default)
+- ✅ **Confirm email**: Abilitato per sicurezza
 
-### 5. Avvia l'Applicazione
+### 3. Configura Email Templates (Opzionale)
+In **Authentication** > **Email Templates**:
+- Personalizza i template di conferma email
+- Personalizza i template di reset password
 
+## 🗄️ Configurazione Database
+
+### 1. Installa Dipendenze
 ```bash
-# Installa le dipendenze (se non già fatto)
 npm install
+```
 
-# Avvia il server di sviluppo
+### 2. Genera Client Prisma
+```bash
+npx prisma generate
+```
+
+### 3. Crea e Popola Database
+```bash
+# Applica lo schema
+npx prisma db push
+
+# Popola con dati di esempio
+npx tsx prisma/seed.ts
+```
+
+### 4. Verifica Database
+```bash
+# Apri Prisma Studio per visualizzare i dati
+npx prisma studio
+```
+
+## 🚀 Avvio e Test
+
+### 1. Avvia l'App
+```bash
 npm run dev
 ```
 
-Apri [http://localhost:3000](http://localhost:3000) nel browser.
+### 2. Testa l'Autenticazione
+1. Vai su [http://localhost:3000](http://localhost:3000)
+2. Clicca "Accedi" o "Registrati"
+3. Crea un account di test
+4. Verifica che ricevi l'email di conferma
 
-## 🎯 Come Funziona l'Autenticazione
+### 3. Testa le Funzionalità
+1. **Registrazione**: Crea un nuovo account
+2. **Login**: Accedi con l'account creato
+3. **Prenotazioni**: Prova a prenotare un servizio
+4. **Carrello**: Aggiungi elementi al carrello
 
-### Flusso di Registrazione:
-1. L'utente compila il form di registrazione
-2. Supabase invia un'email di conferma
-3. L'utente clicca il link nell'email
-4. Viene reindirizzato all'app con la sessione attiva
+## 🔒 Configurazione Ruoli (Opzionale)
 
-### Flusso di Login:
-1. L'utente inserisce email e password
-2. Supabase verifica le credenziali
-3. Se valide, crea una sessione
-4. L'utente viene reindirizzato alla dashboard
+### 1. Crea Utente Super Admin
+Per impostare i ruoli, devi prima creare un Super Admin:
 
-### Flusso Reset Password:
-1. L'utente richiede il reset tramite email
-2. Supabase invia un link di reset
-3. L'utente clicca il link e imposta una nuova password
+```bash
+# Usa Prisma Studio o esegui questo comando
+npx tsx -e "
+import { PrismaClient } from './lib/prisma'
+const prisma = new PrismaClient()
 
-## 📁 Struttura del Codice di Autenticazione
+async function createSuperAdmin() {
+  // Sostituisci con l'ID utente Supabase reale
+  const userId = 'tuo-user-id-supabase'
+  
+  await prisma.userRole.upsert({
+    where: { userId },
+    update: { role: 'SUPER_ADMIN' },
+    create: { userId, role: 'SUPER_ADMIN' }
+  })
+  
+  console.log('Super Admin creato!')
+}
 
-```
-lib/
-├── auth/
-│   └── context.tsx          # Context React per l'autenticazione
-├── supabase/
-│   ├── client.ts           # Client Supabase (browser)
-│   └── server.ts           # Client Supabase (server)
-app/
-├── auth/
-│   ├── callback/route.ts   # Gestisce i redirect dopo auth
-│   ├── login/page.tsx      # Pagina di login
-│   ├── signup/page.tsx     # Pagina di registrazione
-│   ├── forgot-password/page.tsx # Reset password
-│   └── verify-email/page.tsx    # Verifica email
-├── dashboard/page.tsx      # Dashboard utente
-├── layout.tsx             # Layout con AuthProvider
-└── middleware.ts          # Middleware per proteggere route
+createSuperAdmin()
+"
 ```
 
-## 🔐 Spiegazione dei Componenti
+### 2. Gestisci Ruoli via Dashboard
+1. Accedi come Super Admin
+2. Vai su `/admin/utenti`
+3. Modifica i ruoli degli utenti
 
-### AuthProvider (`lib/auth/context.tsx`)
-- **Cosa fa**: Gestisce lo stato dell'utente in tutta l'app
-- **Come funziona**: Usa React Context per condividere user, loading e funzioni di auth
-- **Funzioni principali**: signUp, signIn, signOut, resetPassword
-
-### Middleware (`middleware.ts`)
-- **Cosa fa**: Protegge le route private e gestisce i redirect
-- **Come funziona**: Si esegue prima di ogni richiesta
-- **Protezioni**: 
-  - `/dashboard` richiede autenticazione
-  - Utenti autenticati vengono reindirizzati da login/signup
-
-### Client Supabase
-- **Browser** (`client.ts`): Per operazioni lato client
-- **Server** (`server.ts`): Per operazioni lato server con cookie
-
-## 🎨 Funzionalità dell'App
-
-✅ **Completate**:
-- Sistema di autenticazione completo
-- Home page del negozio con prodotti
-- Dashboard utente
-- Middleware per proteggere route
-- Pagine di login, signup, reset password
-- Design responsive con Tailwind CSS
-
-## 🔧 Troubleshooting
+## 🐛 Troubleshooting
 
 ### Errore "Invalid API Key"
-- Verifica che `NEXT_PUBLIC_SUPABASE_ANON_KEY` sia corretto
-- Assicurati di non avere spazi extra nel file `.env.local`
+- Verifica che `NEXT_PUBLIC_SUPABASE_ANON_KEY` sia corretta
+- Assicurati che il progetto Supabase sia attivo
 
-### Email di conferma non arriva
+### Errore "Site URL not allowed"
+- Verifica che `NEXT_PUBLIC_SITE_URL` sia in Redirect URLs
+- Controlla che sia `http://localhost:3000` per sviluppo
+
+### Database non si connette
+- Verifica che `DATABASE_URL` sia corretto
+- Assicurati di aver eseguito `npx prisma generate`
+- Controlla che il file `prisma/dev.db` esista
+
+### Email non arrivano
+- Verifica le impostazioni SMTP in Supabase
 - Controlla la cartella spam
-- Verifica che il Site URL sia configurato correttamente in Supabase
-
-### Redirect dopo login non funziona
-- Verifica che gli URL di redirect siano configurati in Supabase
-- Controlla che `NEXT_PUBLIC_SITE_URL` sia corretto
-
-## 🚀 Prossimi Passi
-
-Per estendere l'app potresti aggiungere:
-- Carrello della spesa
-- Sistema di pagamento
-- Profilo utente modificabile
-- Cronologia ordini
-- Sistema di recensioni
-- Database prodotti reale
+- Verifica che l'email sia confermata
 
 ## 📚 Risorse Utili
 
 - [Documentazione Supabase](https://supabase.com/docs)
-- [Documentazione Next.js](https://nextjs.org/docs)
-- [Guida Supabase + Next.js](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs) 
+- [Guida Prisma](https://www.prisma.io/docs)
+- [Next.js App Router](https://nextjs.org/docs/app)
+
+---
+
+**🎉 Setup completato! Ora puoi sviluppare la tua app PetShop!** 
