@@ -49,7 +49,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     
     setLoading(true)
     try {
-      // ✅ Nessun sessionId necessario - l'API usa l'autenticazione
       const response = await fetch('/api/cart')
       
       if (response.status === 401) {

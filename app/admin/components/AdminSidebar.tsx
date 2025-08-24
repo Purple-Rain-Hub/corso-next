@@ -43,8 +43,7 @@ export function AdminSidebar() {
         <div className="flex items-center space-x-3">
           <div className="text-2xl">🏪</div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">PetShop</h1>
-            <p className="text-sm text-gray-500">Admin Panel</p>
+            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
           </div>
         </div>
       </div>
