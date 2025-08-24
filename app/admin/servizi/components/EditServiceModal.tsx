@@ -86,8 +86,8 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
   if (!isOpen || !service) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         {/* Header della modale */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-bold text-gray-900">
@@ -115,7 +115,7 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
               id="edit-name"
               value={form.name}
               onChange={(e) => handleFormChange('name', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
               placeholder="Nome del servizio"
             />
           </div>
@@ -130,7 +130,7 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
               value={form.description}
               onChange={(e) => handleFormChange('description', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500 resize-none"
               placeholder="Descrizione del servizio"
             />
           </div>
@@ -141,31 +141,31 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
               <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700 mb-2">
                 Prezzo (€) *
               </label>
-              <input
-                type="number"
-                id="edit-price"
-                value={form.price}
-                onChange={(e) => handleFormChange('price', e.target.value)}
-                min="0"
-                step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00"
-              />
+                              <input
+                  type="number"
+                  id="edit-price"
+                  value={form.price}
+                  onChange={(e) => handleFormChange('price', e.target.value)}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
+                  placeholder="0.00"
+                />
             </div>
 
             <div>
               <label htmlFor="edit-duration" className="block text-sm font-medium text-gray-700 mb-2">
                 Durata (min) *
               </label>
-              <input
-                type="number"
-                id="edit-duration"
-                value={form.duration}
-                onChange={(e) => handleFormChange('duration', e.target.value)}
-                min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="60"
-              />
+                              <input
+                  type="number"
+                  id="edit-duration"
+                  value={form.duration}
+                  onChange={(e) => handleFormChange('duration', e.target.value)}
+                  min="1"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-900 placeholder-gray-500"
+                  placeholder="60"
+                />
             </div>
           </div>
         </div>
@@ -175,14 +175,14 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-semibold transition-colors disabled:opacity-50"
           >
             Annulla
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold transition-colors disabled:opacity-50 flex items-center space-x-2"
           >
             {loading && (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -191,6 +191,8 @@ export default function EditServiceModal({ isOpen, service, onClose, onUpdate }:
           </button>
         </div>
       </div>
+
+
     </div>
   )
 } 
