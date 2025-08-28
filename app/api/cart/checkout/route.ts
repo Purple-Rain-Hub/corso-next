@@ -23,10 +23,9 @@ export async function POST(request: NextRequest) {
     const { customerInfo }: CheckoutInput = body
 
     // 🔒 OTTENGO SOLO GLI ELEMENTI DEL CARRELLO DELL'UTENTE AUTENTICATO
-    // Uso userId invece di sessionId per chiarezza
     const cartItems = await prisma.cartItem.findMany({
       where: { 
-        userId: user.id // Uso userId invece di sessionId
+        userId: user.id
       },
       include: { service: true }
     })
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 🔒 TRANSAZIONE ATOMICA per garantire consistenza
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => { //$transaction per garantire che tutte le operazioni siano eseguite o nessuna
       // Crea le prenotazioni con collegamento all'utente
     const bookings = await Promise.all(
       cartItems.map(item => 

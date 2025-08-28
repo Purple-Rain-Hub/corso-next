@@ -16,7 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return createErrorResponse('Permessi insufficienti', 'FORBIDDEN', 403)
     }
 
-    const resolvedParams = await params
+    const resolvedParams = await params // perche' params è una promise
     const bookingId = parseInt(resolvedParams.id)
 
     if (isNaN(bookingId)) {

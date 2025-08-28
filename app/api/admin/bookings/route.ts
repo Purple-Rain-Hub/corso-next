@@ -10,31 +10,20 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
     const { searchParams } = new URL(req.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
-    const search = searchParams.get('search') || ''
     const status = searchParams.get('status') || ''
 
     // Calcola offset per paginazione
     const skip = (page - 1) * limit
 
-    // Costruisci filtri
+    // Costruisci filtri (senza ricerca testuale)
     const where: any = {}
-
-    // Filtro per ricerca
-    if (search) {
-      where.OR = [
-        { customerName: { contains: search, mode: 'insensitive' } },
-        { customerEmail: { contains: search, mode: 'insensitive' } },
-        { petName: { contains: search, mode: 'insensitive' } },
-        { petType: { contains: search, mode: 'insensitive' } }
-      ]
-    }
 
     // Filtro per status
     if (status && status !== 'all') {
       where.status = status
     }
 
-    const [bookings, total] = await Promise.all([
+    const [bookings, total] = await Promise.all([ //.all per eseguire le due query in parallelo
       prisma.booking.findMany({
         where,
         skip,

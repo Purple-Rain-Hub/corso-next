@@ -75,7 +75,7 @@ export default function PrenotazioniPage() {
   }
 
   const numero_servizi_premium = useMemo(() => { //useMemo memorizza il risultato della funzione per evitare ricalcoli inutili
-    return services.filter((service) => service.price > 20).length
+    return services.length
   }, [services])
 
   if (loading) {

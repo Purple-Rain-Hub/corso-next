@@ -8,17 +8,11 @@ export const GET = withAdminAuth(async (req: NextRequest) => {
     const { searchParams } = new URL(req.url) //recupera i parametri dall'URL
     const page = parseInt(searchParams.get('page') || '1') //recupera il numero di pagina dall'URL
     const limit = parseInt(searchParams.get('limit') || '10') //recupera il numero di elementi per pagina dall'URL
-    const search = searchParams.get('search') || '' //recupera la ricerca dall'URL
     
     const skip = (page - 1) * limit
 
-    // Filtri di ricerca
-    const where = search ? {
-      OR: [ //OR è un array di oggetti, ogni oggetto è un filtro
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { description: { contains: search, mode: 'insensitive' as const } }
-      ]
-    } : {}
+    // Nessun filtro di ricerca testuale, ritorna tutti i servizi paginati
+    const where = {}
 
     // Carica servizi con conteggio prenotazioni
     const [services, total] = await Promise.all([
